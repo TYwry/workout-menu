@@ -142,6 +142,38 @@
   .reset:active { background: var(--card); }
   .warn { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
 
+  .hbtns { display: flex; gap: 10px; flex: none; }
+
+  /* ---------- 歷史紀錄（月曆） ---------- */
+  .cal { background: var(--card); border-radius: var(--radius); padding: 14px 10px 12px; }
+  .cal-nav { display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; margin-bottom: 8px; }
+  .cal-nav button { height: 52px; border-radius: 14px; font-size: 28px; }
+  .cal-nav button:active:not(:disabled) { background: var(--card2); }
+  .cal-nav button:disabled { opacity: .25; }
+  .cal-title { text-align: center; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr) 52px; row-gap: 6px; column-gap: 2px; align-items: center; }
+  .cal-h { text-align: center; font-size: 14px; font-weight: 700; color: var(--muted); padding: 4px 0; }
+  .cal-h.wk { font-size: 12px; }
+  .cd { height: 48px; display: grid; place-items: center; border-radius: 50%; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; width: 46px; margin: 0 auto; }
+  .cd.out { color: var(--muted); opacity: .35; font-weight: 500; }
+  .cd:disabled { cursor: default; }
+  .cd.future { color: var(--muted); opacity: .5; }
+  .cd[data-g="A"] { background: var(--accentA); color: #fff; opacity: 1; }
+  .cd[data-g="B"] { background: var(--accentB); color: #fff; opacity: 1; }
+  .cd.today { box-shadow: inset 0 0 0 2px var(--text); }
+  .cd[data-g].today { box-shadow: inset 0 0 0 3px var(--bg); outline: 2px solid var(--text); }
+  .wkc { text-align: center; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; border-radius: 10px; padding: 6px 0; background: var(--card2); color: var(--muted); }
+  .wkc.full { color: var(--text); }
+  .cal-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+  .stat { background: var(--card); border-radius: 16px; padding: 12px 8px; text-align: center; }
+  .stat b { display: block; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .stat.a b { color: var(--accentA); }
+  .stat.b b { color: var(--accentB); }
+  .legend { display: flex; justify-content: center; gap: 18px; margin-top: 14px; font-size: 15px; color: var(--muted); }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 6px; }
+  .hint { text-align: center; font-size: 14px; color: var(--muted); margin-top: 10px; }
+
   /* ---------- 底部選單 ---------- */
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center;
            padding: 16px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px); z-index: 20; }
@@ -166,9 +198,14 @@
       <div class="eyebrow" id="todayDate"></div>
       <h1>今天練 <span class="tag" id="todayTag">胸肩背組</span></h1>
     </div>
+    <div class="hbtns">
+    <button type="button" class="icon-btn" id="openHistory" aria-label="歷史紀錄">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg>
+    </button>
     <button type="button" class="icon-btn" id="openSettings" aria-label="設定重量、次數、組數">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
+    </div>
   </header>
 
   <section class="week" aria-label="本週訓練紀錄">
@@ -209,6 +246,35 @@
   </footer>
 </div>
 
+<!-- =============== 歷史紀錄 =============== -->
+<div id="historyView" hidden>
+  <header>
+    <div>
+      <div class="eyebrow">歷史紀錄</div>
+      <h1>練習月曆</h1>
+    </div>
+    <button type="button" class="done-btn" id="closeHistory">返回</button>
+  </header>
+
+  <section class="cal" aria-label="練習月曆">
+    <div class="cal-nav">
+      <button type="button" id="prevMonth" aria-label="上個月">‹</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button type="button" id="nextMonth" aria-label="下個月">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </section>
+
+  <div class="legend"><span><i style="background:var(--accentA)"></i>胸肩背組</span><span><i style="background:var(--accentB)"></i>上下肢組</span></div>
+
+  <div class="cal-sum">
+    <div class="stat"><b id="sumAll">0</b><span>本月總次數</span></div>
+    <div class="stat a"><b id="sumA">0</b><span>胸肩背組</span></div>
+    <div class="stat b"><b id="sumB">0</b><span>上下肢組</span></div>
+  </div>
+  <div class="hint">最右欄是該週次數（目標 4 次）・點日期可補登或修改</div>
+</div>
+
 <!-- 選擇某天練了哪一組 -->
 <div class="modal" id="dayModal" role="dialog" aria-modal="true" aria-labelledby="dayModalText">
   <div class="sheet">
@@ -240,7 +306,8 @@
   var STORAGE_KEY = 'workout-v2';
   var OLD_KEY = 'workout-v1';
   var MAX_TENTHS = 5000;          // 上限 500 kg
-  var KEEP_DAYS = 120;            // 打勾紀錄保留約四個月
+  var KEEP_DAYS = 730;            // 打勾紀錄保留約兩年，更舊的自動刪除
+  var WEEK_GOAL = 4;
   var REPS = [6, 8, 10, 12];
   var SETS = [3, 4];
   var DOW = ['日', '一', '二', '三', '四', '五', '六'];
@@ -369,7 +436,7 @@
       t.getFullYear() + '/' + md(t) + '（' + DOW[t.getDay()] + '）';
     document.getElementById('weekRange').textContent = '本週 ' + md(days[0]) + ' – ' + md(days[6]);
     var cnt = days.filter(function (d) { return state.log[keyOf(d)]; }).length;
-    document.getElementById('weekCount').textContent = '已練 ' + cnt + ' / 4 次';
+    document.getElementById('weekCount').textContent = '已練 ' + cnt + ' / ' + WEEK_GOAL + ' 次';
 
     var box = document.getElementById('days');
     box.replaceChildren.apply(box, days.map(function (d) {
@@ -473,13 +540,66 @@
     list.replaceChildren.apply(list, EXERCISES.filter(function (e) { return e.g === g; }).map(card));
   }
 
-  function showSettings(on) {
-    document.getElementById('mainView').hidden = on;
-    document.getElementById('settingsView').hidden = !on;
-    if (on) { settingsGroup = state.group; renderSettings(); }
+  // ---------- 歷史紀錄（月曆） ----------
+  var calMonth = (function () { var t = today(); return new Date(t.getFullYear(), t.getMonth(), 1); })();
+  function minMonth() { var c = today(); c.setDate(c.getDate() - KEEP_DAYS); return new Date(c.getFullYear(), c.getMonth(), 1); }
+  function maxMonth() { var t = today(); return new Date(t.getFullYear(), t.getMonth(), 1); }
+
+  function renderHistory() {
+    document.body.setAttribute('data-group', state.group);
+    var t = today();
+    var y = calMonth.getFullYear(), m = calMonth.getMonth();
+    document.getElementById('calTitle').textContent = y + ' 年 ' + (m + 1) + ' 月';
+    document.getElementById('prevMonth').disabled = calMonth <= minMonth();
+    document.getElementById('nextMonth').disabled = calMonth >= maxMonth();
+
+    var cells = ['一', '二', '三', '四', '五', '六', '日'].map(function (d) { return el('div', { class: 'cal-h', text: d }); });
+    cells.push(el('div', { class: 'cal-h wk', text: '週次數' }));
+
+    var first = new Date(y, m, 1);
+    var cur = new Date(first); cur.setDate(1 - ((first.getDay() + 6) % 7));   // 該月第一週的週一
+    var sumA = 0, sumB = 0;
+    while (true) {
+      var weekCnt = 0, weekHasPast = false;
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(cur), k = keyOf(d), g = state.log[k] || '';
+        var inMonth = d.getMonth() === m, future = d > t;
+        if (g) weekCnt++;
+        if (!future) weekHasPast = true;
+        if (inMonth && g === 'A') sumA++;
+        if (inMonth && g === 'B') sumB++;
+        var cls = 'cd' + (inMonth ? '' : ' out') + (future ? ' future' : '') + (k === todayKey ? ' today' : '');
+        var b = el('button', {
+          type: 'button', class: cls, 'data-day': k, 'data-g': g, text: String(d.getDate()),
+          'aria-label': (d.getMonth() + 1) + '月' + d.getDate() + '日' + (g ? '，' + GROUPS[g].title : '')
+        });
+        if (future) b.disabled = true;
+        cells.push(b);
+        cur.setDate(cur.getDate() + 1);
+      }
+      cells.push(el('div', { class: 'wkc' + (weekCnt >= WEEK_GOAL ? ' full' : ''), text: weekHasPast ? weekCnt + '/' + WEEK_GOAL : '' }));
+      if (cur.getMonth() !== m) break;
+    }
+    var grid = document.getElementById('calGrid');
+    grid.replaceChildren.apply(grid, cells);
+    document.getElementById('sumAll').textContent = String(sumA + sumB);
+    document.getElementById('sumA').textContent = String(sumA);
+    document.getElementById('sumB').textContent = String(sumB);
+  }
+
+  // ---------- 頁面切換 ----------
+  var view = 'main';
+  function showView(name) {
+    view = name;
+    document.getElementById('mainView').hidden = name !== 'main';
+    document.getElementById('settingsView').hidden = name !== 'settings';
+    document.getElementById('historyView').hidden = name !== 'history';
+    if (name === 'settings') { settingsGroup = state.group; renderSettings(); }
+    else if (name === 'history') { calMonth = maxMonth(); renderHistory(); }
     else renderMain();
     window.scrollTo(0, 0);
   }
+  function renderCurrent() { if (view === 'history') renderHistory(); else if (view === 'main') renderMain(); }
 
   // ---------- 操作：主畫面 ----------
   document.querySelector('#mainView .switch').addEventListener('click', function (ev) {
@@ -519,13 +639,25 @@
     } else if (pick === 'clear') {
       delete state.log[pickingDay];
     }
-    if (pick !== 'cancel') { save(); renderMain(); }
+    if (pick !== 'cancel') { save(); renderCurrent(); }
     dayModal.classList.remove('open');
     pickingDay = null;
   });
 
-  document.getElementById('openSettings').addEventListener('click', function () { showSettings(true); });
-  document.getElementById('closeSettings').addEventListener('click', function () { showSettings(false); });
+  document.getElementById('openSettings').addEventListener('click', function () { showView('settings'); });
+  document.getElementById('closeSettings').addEventListener('click', function () { showView('main'); });
+  document.getElementById('openHistory').addEventListener('click', function () { showView('history'); });
+  document.getElementById('closeHistory').addEventListener('click', function () { showView('main'); });
+  document.getElementById('prevMonth').addEventListener('click', function () {
+    if (calMonth > minMonth()) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderHistory(); }
+  });
+  document.getElementById('nextMonth').addEventListener('click', function () {
+    if (calMonth < maxMonth()) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderHistory(); }
+  });
+  document.getElementById('calGrid').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-day]');
+    if (b && !b.disabled) openDay(b.getAttribute('data-day'));
+  });
 
   // ---------- 操作：設定頁 ----------
   document.querySelector('#settingsView .switch').addEventListener('click', function (ev) {
@@ -567,7 +699,7 @@
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState !== 'visible') return;
     var k = keyOf(today());
-    if (k !== todayKey) { todayKey = k; if (!document.getElementById('mainView').hidden) renderMain(); }
+    if (k !== todayKey) { todayKey = k; renderCurrent(); }
   });
 
   save();          // 寫入清理過／轉換過的資料

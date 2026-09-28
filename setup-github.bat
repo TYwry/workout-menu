@@ -12,6 +12,13 @@ where gh  >nul 2>nul || (echo 請關閉視窗後重新雙擊本檔案（剛安�
 gh auth status >nul 2>nul || gh auth login --web --git-protocol https
 gh auth setup-git
 
+for /f "delims=" %%i in ('gh api user -q .login') do set GHUSER=%%i
+
+rem ---- 把 README 最上方的連結換成你的帳號，並設定儲存庫 About 欄的網址 ----
+if "%GHUSER%"=="" goto :skiplink
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p='README.md'; $t=[IO.File]::ReadAllText($p); if($t.Contains('__GH_USER__')){ [IO.File]::WriteAllText($p, $t.Replace('__GH_USER__','%GHUSER%'), (New-Object Text.UTF8Encoding $false)) }"
+:skiplink
+
 if not exist ".git" git init -b main
 git add -A
 
@@ -28,8 +35,8 @@ if exist ".commit-message.txt" (git commit -F ".commit-message.txt" && del ".com
 rem GitHub Pages 免費方案需要公開儲存庫；內容只有菜單，沒有個資
 gh repo create %REPO% --public --source . --push || git push -u origin main
 
-for /f "delims=" %%i in ('gh api user -q .login') do set GHUSER=%%i
 gh api -X POST "repos/%GHUSER%/%REPO%/pages" -f "source[branch]=main" -f "source[path]=/" >nul 2>nul
+gh repo edit "%GHUSER%/%REPO%" --homepage "https://%GHUSER%.github.io/%REPO%/" >nul 2>nul
 echo.
 echo 完成！約 1 分鐘後可用 iPhone Safari 開啟：
 echo   https://%GHUSER%.github.io/%REPO%/
