@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="健身菜單">
+<meta name="theme-color" content="#0b0d12">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<title>健身菜單</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --card: #161a22;
+    --card2: #1e2330;
+    --line: #2a3040;
+    --text: #f3f5f9;
+    --muted: #8b93a7;
+    --accentA: #c97a70;   /* 胸肩背組：低飽和磚紅 */
+    --accentB: #6f8fc4;   /* 上下肢組：低飽和霧藍 */
+    --accent: var(--accentA);
+    --onAccent: #fff;
+    --radius: 20px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f2f3f7;
+      --card: #ffffff;
+      --card2: #eceef3;
+      --line: #dde0e8;
+      --text: #10131a;
+      --muted: #666e80;
+      --accentA: #b0685f;
+      --accentB: #5a78ab;
+    }
+  }
+  body[data-group="B"] { --accent: var(--accentB); }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.35;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    padding: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 16px)
+             calc(env(safe-area-inset-bottom) + 28px) calc(env(safe-area-inset-left) + 16px);
+    min-height: 100vh;
+  }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- 頁首 ---------- */
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin: 8px 2px 16px; }
+  .eyebrow { font-size: 15px; font-weight: 600; letter-spacing: .1em; color: var(--muted); }
+  h1 { margin: 4px 0 0; font-size: 32px; font-weight: 800; }
+  h1 .tag { color: var(--accent); }
+  .icon-btn { flex: none; width: 52px; height: 52px; border-radius: 16px; background: var(--card); display: grid; place-items: center; }
+  .icon-btn:active { background: var(--card2); }
+  .icon-btn svg { width: 26px; height: 26px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .done-btn { flex: none; height: 52px; padding: 0 22px; border-radius: 16px; background: var(--accent); color: var(--onAccent); font-size: 19px; font-weight: 800; }
+
+  /* ---------- 本週 ---------- */
+  .week { background: var(--card); border-radius: var(--radius); padding: 14px 10px 12px; margin-bottom: 16px; }
+  .week-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 6px 10px; }
+  .week-head b { font-size: 18px; }
+  .week-head span { font-size: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 8px; border-radius: 14px; min-height: 104px; }
+  .day:active:not(:disabled) { background: var(--card2); }
+  .day:disabled { opacity: .4; cursor: default; }
+  .day .dow { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .day .num { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .day .mark { width: 30px; height: 30px; border-radius: 50%; border: 2px dashed var(--line); display: grid; place-items: center; }
+  .day .mark svg { width: 18px; height: 18px; stroke: #fff; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .day .gname { font-size: 12px; font-weight: 700; line-height: 1; min-height: 12px; }
+  .day[data-g="A"] .mark { background: var(--accentA); border: 0; }
+  .day[data-g="B"] .mark { background: var(--accentB); border: 0; }
+  .day[data-g="A"] .gname { color: var(--accentA); }
+  .day[data-g="B"] .gname { color: var(--accentB); }
+  .day.today { background: var(--card2); box-shadow: inset 0 0 0 2px var(--muted); }
+  .day.today .dow { color: var(--text); }
+
+  /* ---------- 分組切換 ---------- */
+  .switch { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--card); padding: 6px; border-radius: 22px; margin-bottom: 16px; }
+  .switch button { min-height: 60px; border-radius: 17px; font-size: 21px; font-weight: 800; color: var(--muted); transition: background .18s, color .18s; }
+  .switch button[aria-pressed="true"] { color: var(--onAccent); }
+  .switch button[data-g="A"][aria-pressed="true"] { background: var(--accentA); }
+  .switch button[data-g="B"][aria-pressed="true"] { background: var(--accentB); }
+
+  /* ---------- 菜單表格（主畫面） ---------- */
+  .menu { background: var(--card); border-radius: var(--radius); overflow: hidden; }
+  .mrow { display: grid; grid-template-columns: 1.55fr 1.15fr .8fr .8fr; align-items: center; min-height: 76px; padding: 0 16px; border-top: 1px solid var(--line); }
+  .mrow.mhead { min-height: 44px; border-top: 0; background: var(--card2); font-size: 15px; font-weight: 700; color: var(--muted); }
+  .mrow > div { text-align: center; }
+  .mrow > div:first-child { text-align: left; }
+  .mname { font-size: 23px; font-weight: 800; }
+  .mval { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .mval small { font-size: 14px; font-weight: 600; color: var(--muted); margin-left: 2px; }
+  .mval .note { display: block; font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1; margin-top: 2px; }
+  .mval.empty { color: var(--muted); font-weight: 600; }
+  .mval.acc { color: var(--accent); }
+
+  .check-today { width: 100%; margin-top: 16px; min-height: 64px; border-radius: 18px; background: var(--accent); color: var(--onAccent); font-size: 21px; font-weight: 800;
+                 display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .check-today svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .check-today.is-done { background: var(--card); color: var(--text); box-shadow: inset 0 0 0 2px var(--accent); }
+
+  /* ---------- 設定頁 ---------- */
+  .list { display: grid; gap: 14px; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 18px 16px 16px; }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+  .name { font-size: 24px; font-weight: 800; }
+  .step-hint { font-size: 14px; color: var(--muted); font-weight: 600; }
+  .row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .label { width: 44px; flex: none; font-size: 17px; color: var(--muted); font-weight: 600; }
+  .stepper { flex: 1; display: grid; grid-template-columns: 60px 1fr 60px; align-items: center; background: var(--card2); border-radius: 16px; overflow: hidden; }
+  .stepper button { height: 60px; font-size: 32px; font-weight: 500; }
+  .stepper button:active { background: var(--line); }
+  .stepper button:disabled { opacity: .3; }
+  .weight { text-align: center; font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .weight small { font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 3px; }
+  .weight .note { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-top: -4px; }
+  .weight .unset { font-size: 20px; font-weight: 700; color: var(--muted); }
+  .seg { flex: 1; display: grid; gap: 6px; background: var(--card2); padding: 5px; border-radius: 16px; }
+  .seg.c4 { grid-template-columns: repeat(4, 1fr); }
+  .seg.c2 { grid-template-columns: repeat(2, 1fr); }
+  .seg button { height: 50px; border-radius: 12px; font-size: 22px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--onAccent); }
+
+  footer { margin-top: 26px; text-align: center; }
+  .reset { color: var(--muted); font-size: 16px; padding: 12px 18px; border-radius: 12px; }
+  .reset:active { background: var(--card); }
+  .warn { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
+
+  /* ---------- 底部選單 ---------- */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center;
+           padding: 16px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px); z-index: 20; }
+  .modal.open { display: flex; }
+  .sheet { width: 100%; max-width: 480px; background: var(--card); border-radius: 22px; padding: 22px 16px 16px; text-align: center; }
+  .sheet p { margin: 0 0 16px; font-size: 20px; font-weight: 700; }
+  .sheet .btns { display: grid; gap: 10px; }
+  .sheet .btns.two { grid-template-columns: 1fr 1fr; }
+  .sheet button { height: 58px; border-radius: 14px; font-size: 20px; font-weight: 700; background: var(--card2); }
+  .sheet button.gA { background: var(--accentA); color: #fff; }
+  .sheet button.gB { background: var(--accentB); color: #fff; }
+  .sheet button.danger { background: var(--accentA); color: #fff; }
+  .sheet button.plain { background: none; color: var(--muted); font-size: 18px; }
+</style>
+</head>
+<body data-group="A">
+
+<!-- =============== 主畫面 =============== -->
+<div id="mainView">
+  <header>
+    <div>
+      <div class="eyebrow" id="todayDate"></div>
+      <h1>今天練 <span class="tag" id="todayTag">胸肩背組</span></h1>
+    </div>
+    <button type="button" class="icon-btn" id="openSettings" aria-label="設定重量、次數、組數">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+
+  <section class="week" aria-label="本週訓練紀錄">
+    <div class="week-head"><b id="weekRange"></b><span id="weekCount"></span></div>
+    <div class="days" id="days"></div>
+  </section>
+
+  <nav class="switch" aria-label="選擇今天的組別">
+    <button type="button" data-g="A" aria-pressed="true">胸肩背組</button>
+    <button type="button" data-g="B" aria-pressed="false">上下肢組</button>
+  </nav>
+
+  <section class="menu" id="menu" aria-label="今日菜單"></section>
+
+  <button type="button" class="check-today" id="checkToday"></button>
+  <div class="warn" id="storageWarn" hidden>此瀏覽器無法儲存資料，關閉後設定不會保留。</div>
+</div>
+
+<!-- =============== 設定頁 =============== -->
+<div id="settingsView" hidden>
+  <header>
+    <div>
+      <div class="eyebrow">設定</div>
+      <h1>重量・次數・組數</h1>
+    </div>
+    <button type="button" class="done-btn" id="closeSettings">完成</button>
+  </header>
+
+  <nav class="switch" aria-label="選擇要設定的組別">
+    <button type="button" data-g="A" aria-pressed="true">胸肩背組</button>
+    <button type="button" data-g="B" aria-pressed="false">上下肢組</button>
+  </nav>
+
+  <main class="list" id="list"></main>
+
+  <footer>
+    <button type="button" class="reset" id="resetBtn">重設為預設值</button>
+  </footer>
+</div>
+
+<!-- 選擇某天練了哪一組 -->
+<div class="modal" id="dayModal" role="dialog" aria-modal="true" aria-labelledby="dayModalText">
+  <div class="sheet">
+    <p id="dayModalText"></p>
+    <div class="btns">
+      <button type="button" class="gA" data-pick="A">胸肩背組</button>
+      <button type="button" class="gB" data-pick="B">上下肢組</button>
+      <button type="button" data-pick="clear" id="clearDay">沒有練（清除）</button>
+      <button type="button" class="plain" data-pick="cancel">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重設確認 -->
+<div class="modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetText">
+  <div class="sheet">
+    <p id="resetText">把所有重量、次數、組數<br>恢復成預設值？<br><small style="font-weight:500;color:var(--muted)">（本週打勾紀錄不受影響）</small></p>
+    <div class="btns two">
+      <button type="button" id="cancelReset">取消</button>
+      <button type="button" class="danger" id="confirmReset">重設</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'workout-v2';
+  var OLD_KEY = 'workout-v1';
+  var MAX_TENTHS = 5000;          // 上限 500 kg
+  var KEEP_DAYS = 120;            // 打勾紀錄保留約四個月
+  var REPS = [6, 8, 10, 12];
+  var SETS = [3, 4];
+  var DOW = ['日', '一', '二', '三', '四', '五', '六'];
+
+  var GROUPS = {
+    A: { title: '胸肩背組' },
+    B: { title: '上下肢組' }
+  };
+
+  // 重量以「0.1 kg」為單位的整數儲存，避免浮點誤差；step 同樣單位
+  var EXERCISES = [
+    { id: 'db_bench',  g: 'A', name: '啞鈴臥推', w: 175, step: 25, r: 10, s: 3 },
+    { id: 'incline',   g: 'A', name: '上斜臥推', w: 150, step: 25, r: 8,  s: 4 },
+    { id: 'pullup',    g: 'A', name: '引體向上', w: 150, step: 10, r: 8,  s: 3 },
+    { id: 'row',       g: 'A', name: '坐姿划船', w: 300, step: 10, r: 8,  s: 4 },
+    { id: 'squat',     g: 'B', name: '槓鈴深蹲', w: 100, step: 25, r: 8,  s: 4, note: '每邊' },
+    { id: 'deadlift',  g: 'B', name: '硬拉',     w: 0,   step: 25, r: 8,  s: 3 },
+    { id: 'lat_raise', g: 'B', name: '側平舉',   w: 75,  step: 25, r: 12, s: 3 },
+    { id: 'curl',      g: 'B', name: '彎舉',     w: 100, step: 25, r: 8,  s: 4 }
+  ];
+
+  // ---------- 日期 ----------
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function keyOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { var d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function weekDays(ref) {            // 週一到週日
+    var start = new Date(ref);
+    var offset = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - offset);
+    var out = [];
+    for (var i = 0; i < 7; i++) { var d = new Date(start); d.setDate(start.getDate() + i); out.push(d); }
+    return out;
+  }
+  function md(d) { return (d.getMonth() + 1) + '/' + d.getDate(); }
+
+  // ---------- 儲存（全部包 try/catch） ----------
+  var storageOK = true;
+  function readKey(k) {
+    try { return JSON.parse(localStorage.getItem(k) || 'null'); }
+    catch (e) { if (e instanceof SyntaxError) return null; storageOK = false; return null; }
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { storageOK = false; }
+    document.getElementById('storageWarn').hidden = storageOK;
+  }
+
+  function defaults() {
+    var ex = {};
+    EXERCISES.forEach(function (e) { ex[e.id] = { w: e.w, r: e.r, s: e.s }; });
+    return { group: 'A', ex: ex, log: {} };
+  }
+
+  function validW(e, w) { return Number.isInteger(w) && w >= 0 && w <= MAX_TENTHS; }
+
+  function sanitize(raw) {
+    var st = defaults();
+    if (!raw || typeof raw !== 'object') return st;
+    if (raw.group === 'A' || raw.group === 'B') st.group = raw.group;
+    if (raw.ex && typeof raw.ex === 'object') {
+      EXERCISES.forEach(function (e) {
+        var v = raw.ex[e.id];
+        if (!v || typeof v !== 'object') return;
+        if (validW(e, v.w)) st.ex[e.id].w = v.w;
+        if (REPS.indexOf(v.r) !== -1) st.ex[e.id].r = v.r;
+        if (SETS.indexOf(v.s) !== -1) st.ex[e.id].s = v.s;
+      });
+    }
+    if (raw.log && typeof raw.log === 'object') {
+      var cutoff = today(); cutoff.setDate(cutoff.getDate() - KEEP_DAYS);
+      var cutKey = keyOf(cutoff);
+      Object.keys(raw.log).forEach(function (k) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= cutKey && (raw.log[k] === 'A' || raw.log[k] === 'B')) st.log[k] = raw.log[k];
+      });
+    }
+    return st;
+  }
+
+  // 從第一版（重量以 2.5 為單位、左/右組）轉換過來
+  function migrateV1(old) {
+    if (!old || typeof old !== 'object') return null;
+    var raw = { group: old.group === 'R' ? 'B' : 'A', ex: {} };
+    if (old.ex && typeof old.ex === 'object') {
+      Object.keys(old.ex).forEach(function (id) {
+        var v = old.ex[id];
+        if (v && Number.isInteger(v.u)) raw.ex[id] = { w: v.u * 25, r: v.r, s: v.s };
+      });
+    }
+    return raw;
+  }
+
+  var raw = readKey(STORAGE_KEY);
+  if (!raw) raw = migrateV1(readKey(OLD_KEY));
+  var state = sanitize(raw);
+
+  // 今天若已打勾，主畫面直接顯示那一組
+  var todayKey = keyOf(today());
+  if (state.log[todayKey]) state.group = state.log[todayKey];
+  var settingsGroup = state.group;
+
+  // ---------- 小工具 ----------
+  function el(tag, props, children) {
+    var n = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      if (k === 'text') n.textContent = props[k];
+      else if (k === 'class') n.className = props[k];
+      else n.setAttribute(k, props[k]);
+    });
+    (children || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function svgCheck() {
+    var ns = 'http://www.w3.org/2000/svg';
+    var s = document.createElementNS(ns, 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+    var p = document.createElementNS(ns, 'path'); p.setAttribute('d', 'M5 12.5l4.5 4.5L19 7.5'); s.appendChild(p);
+    return s;
+  }
+  function fmtKg(t) { return (t % 10 === 0) ? String(t / 10) : (t / 10).toFixed(1); }
+  function byId(id) { return EXERCISES.find(function (x) { return x.id === id; }); }
+
+  // ---------- 主畫面 ----------
+  function renderWeek() {
+    var t = today();
+    var days = weekDays(t);
+    document.getElementById('todayDate').textContent =
+      t.getFullYear() + '/' + md(t) + '（' + DOW[t.getDay()] + '）';
+    document.getElementById('weekRange').textContent = '本週 ' + md(days[0]) + ' – ' + md(days[6]);
+    var cnt = days.filter(function (d) { return state.log[keyOf(d)]; }).length;
+    document.getElementById('weekCount').textContent = '已練 ' + cnt + ' / 4 次';
+
+    var box = document.getElementById('days');
+    box.replaceChildren.apply(box, days.map(function (d) {
+      var k = keyOf(d), g = state.log[k] || '';
+      var future = d > t;
+      var b = el('button', {
+        type: 'button', class: 'day' + (k === todayKey ? ' today' : ''),
+        'data-day': k, 'data-g': g,
+        'aria-label': md(d) + ' 星期' + DOW[d.getDay()] + (g ? '，已練' + GROUPS[g].title : '，未練')
+      }, [
+        el('span', { class: 'dow', text: DOW[d.getDay()] }),
+        el('span', { class: 'num', text: String(d.getDate()) }),
+        el('span', { class: 'mark' }, g ? [svgCheck()] : []),
+        el('span', { class: 'gname', text: g ? GROUPS[g].title.slice(0, 3) : '' })
+      ]);
+      if (future) b.disabled = true;
+      return b;
+    }));
+  }
+
+  function renderMenu() {
+    var g = state.group;
+    document.body.setAttribute('data-group', g);
+    document.getElementById('todayTag').textContent = GROUPS[g].title;
+    document.querySelectorAll('#mainView .switch button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === g));
+    });
+
+    var rows = [el('div', { class: 'mrow mhead', role: 'row' }, [
+      el('div', { text: '動作' }), el('div', { text: '重量' }), el('div', { text: '次數' }), el('div', { text: '組數' })
+    ])];
+    EXERCISES.filter(function (e) { return e.g === g; }).forEach(function (e) {
+      var v = state.ex[e.id];
+      var wCell = v.w === 0
+        ? el('div', { class: 'mval empty', text: '—' })
+        : el('div', { class: 'mval' }, [fmtKg(v.w), el('small', { text: 'kg' }), e.note ? el('span', { class: 'note', text: e.note }) : null]);
+      rows.push(el('div', { class: 'mrow', role: 'row' }, [
+        el('div', { class: 'mname', text: e.name }),
+        wCell,
+        el('div', { class: 'mval acc', text: String(v.r) }),
+        el('div', { class: 'mval acc', text: String(v.s) })
+      ]));
+    });
+    var menu = document.getElementById('menu');
+    menu.replaceChildren.apply(menu, rows);
+
+    // 今天打勾按鈕
+    var btn = document.getElementById('checkToday');
+    var done = state.log[todayKey];
+    btn.classList.toggle('is-done', !!done);
+    btn.replaceChildren(svgCheck(), document.createTextNode(
+      done ? '今天已完成：' + GROUPS[done].title + '（點此修改）' : '今天練完了，打勾'
+    ));
+  }
+
+  function renderMain() { renderWeek(); renderMenu(); document.getElementById('storageWarn').hidden = storageOK; }
+
+  // ---------- 設定頁 ----------
+  function segButtons(opts, current, kind, id) {
+    return opts.map(function (v) {
+      return el('button', {
+        type: 'button', text: String(v),
+        'aria-pressed': String(v === current),
+        'aria-label': (kind === 'r' ? v + ' 次' : v + ' 組'),
+        'data-act': kind, 'data-id': id, 'data-v': String(v)
+      });
+    });
+  }
+
+  function card(e) {
+    var v = state.ex[e.id];
+    var weightBox = el('div', { class: 'weight', 'aria-live': 'polite' }, [
+      v.w === 0 ? el('span', { class: 'unset', text: '未設定' }) : fmtKg(v.w),
+      v.w === 0 ? null : el('small', { text: 'kg' }),
+      e.note ? el('span', { class: 'note', text: e.note }) : null
+    ]);
+    var stepTxt = fmtKg(e.step);
+    var minus = el('button', { type: 'button', text: '−', 'aria-label': e.name + ' 減 ' + stepTxt + ' 公斤', 'data-act': 'w', 'data-id': e.id, 'data-v': '-1' });
+    var plus  = el('button', { type: 'button', text: '+', 'aria-label': e.name + ' 加 ' + stepTxt + ' 公斤', 'data-act': 'w', 'data-id': e.id, 'data-v': '1' });
+    if (v.w <= 0) minus.disabled = true;
+    if (v.w >= MAX_TENTHS) plus.disabled = true;
+
+    return el('section', { class: 'card', 'data-card': e.id }, [
+      el('div', { class: 'card-head' }, [
+        el('div', { class: 'name', text: e.name }),
+        el('div', { class: 'step-hint', text: '每次 ±' + stepTxt + ' kg' })
+      ]),
+      el('div', { class: 'row' }, [el('div', { class: 'label', text: '重量' }), el('div', { class: 'stepper' }, [minus, weightBox, plus])]),
+      el('div', { class: 'row' }, [el('div', { class: 'label', text: '次數' }), el('div', { class: 'seg c4', role: 'group', 'aria-label': '次數' }, segButtons(REPS, v.r, 'r', e.id))]),
+      el('div', { class: 'row' }, [el('div', { class: 'label', text: '組數' }), el('div', { class: 'seg c2', role: 'group', 'aria-label': '組數' }, segButtons(SETS, v.s, 's', e.id))])
+    ]);
+  }
+
+  function renderSettings() {
+    var g = settingsGroup;
+    document.body.setAttribute('data-group', g);
+    document.querySelectorAll('#settingsView .switch button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === g));
+    });
+    var list = document.getElementById('list');
+    list.replaceChildren.apply(list, EXERCISES.filter(function (e) { return e.g === g; }).map(card));
+  }
+
+  function showSettings(on) {
+    document.getElementById('mainView').hidden = on;
+    document.getElementById('settingsView').hidden = !on;
+    if (on) { settingsGroup = state.group; renderSettings(); }
+    else renderMain();
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- 操作：主畫面 ----------
+  document.querySelector('#mainView .switch').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-g]');
+    if (!b) return;
+    var g = b.getAttribute('data-g');
+    if (g === state.group) return;
+    state.group = g; save(); renderMenu();
+  });
+
+  var dayModal = document.getElementById('dayModal');
+  var pickingDay = null;
+  function openDay(k) {
+    pickingDay = k;
+    var p = k.split('-'); var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    document.getElementById('dayModalText').textContent =
+      (k === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）練了哪一組？';
+    document.getElementById('clearDay').hidden = !state.log[k];
+    dayModal.classList.add('open');
+  }
+  document.getElementById('days').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-day]');
+    if (b && !b.disabled) openDay(b.getAttribute('data-day'));
+  });
+  document.getElementById('checkToday').addEventListener('click', function () {
+    if (state.log[todayKey]) { openDay(todayKey); return; }
+    state.log[todayKey] = state.group; save(); renderMain();
+  });
+  dayModal.addEventListener('click', function (ev) {
+    if (ev.target === dayModal) { dayModal.classList.remove('open'); return; }
+    var b = ev.target.closest('button[data-pick]');
+    if (!b || !pickingDay) return;
+    var pick = b.getAttribute('data-pick');
+    if (pick === 'A' || pick === 'B') {
+      state.log[pickingDay] = pick;
+      if (pickingDay === todayKey) state.group = pick;
+    } else if (pick === 'clear') {
+      delete state.log[pickingDay];
+    }
+    if (pick !== 'cancel') { save(); renderMain(); }
+    dayModal.classList.remove('open');
+    pickingDay = null;
+  });
+
+  document.getElementById('openSettings').addEventListener('click', function () { showSettings(true); });
+  document.getElementById('closeSettings').addEventListener('click', function () { showSettings(false); });
+
+  // ---------- 操作：設定頁 ----------
+  document.querySelector('#settingsView .switch').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-g]');
+    if (!b) return;
+    settingsGroup = b.getAttribute('data-g');
+    renderSettings();
+  });
+
+  document.getElementById('list').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-act]');
+    if (!b || b.disabled) return;
+    var id = b.getAttribute('data-id');
+    var e = byId(id), v = state.ex[id];
+    if (!e || !v) return;
+    var act = b.getAttribute('data-act');
+    var n = parseInt(b.getAttribute('data-v'), 10);
+    if (act === 'w') v.w = Math.min(MAX_TENTHS, Math.max(0, v.w + n * e.step));
+    else if (act === 'r' && REPS.indexOf(n) !== -1) v.r = n;
+    else if (act === 's' && SETS.indexOf(n) !== -1) v.s = n;
+    else return;
+    save();
+    var old = document.querySelector('[data-card="' + id + '"]');
+    if (old) old.replaceWith(card(e));
+  });
+
+  var resetModal = document.getElementById('resetModal');
+  document.getElementById('resetBtn').addEventListener('click', function () { resetModal.classList.add('open'); });
+  document.getElementById('cancelReset').addEventListener('click', function () { resetModal.classList.remove('open'); });
+  resetModal.addEventListener('click', function (ev) { if (ev.target === resetModal) resetModal.classList.remove('open'); });
+  document.getElementById('confirmReset').addEventListener('click', function () {
+    var keep = { group: state.group, log: state.log };
+    state = defaults(); state.group = keep.group; state.log = keep.log;
+    save(); renderSettings();
+    resetModal.classList.remove('open');
+  });
+
+  // 跨過午夜或從背景回來時更新日期
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    var k = keyOf(today());
+    if (k !== todayKey) { todayKey = k; if (!document.getElementById('mainView').hidden) renderMain(); }
+  });
+
+  save();          // 寫入清理過／轉換過的資料
+  renderMain();
+})();
+</script>
+</body>
+</html>
