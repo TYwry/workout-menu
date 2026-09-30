@@ -174,6 +174,67 @@
   .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 6px; }
   .hint { text-align: center; font-size: 14px; color: var(--muted); margin-top: 10px; }
 
+  /* ---------- 本週體重 ---------- */
+  .bw-chip { width: 100%; margin-top: 10px; min-height: 48px; border-radius: 14px; background: var(--card2);
+             display: flex; align-items: center; justify-content: space-between; padding: 0 14px; font-size: 17px; }
+  .bw-chip b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .bw-chip.missing { color: var(--muted); box-shadow: inset 0 0 0 2px var(--line); background: none; }
+  .bw-chip.missing b { color: var(--accent); font-size: 17px; }
+
+  /* ---------- 歷史：體重與詳細紀錄 ---------- */
+  .sec-title { font-size: 20px; font-weight: 800; margin: 24px 4px 10px; }
+  .bw-list { background: var(--card); border-radius: var(--radius); overflow: hidden; }
+  .bw-row { width: 100%; display: grid; grid-template-columns: 1fr auto 70px; align-items: center; gap: 8px; min-height: 56px; padding: 0 16px; border-top: 1px solid var(--line); text-align: left; }
+  .bw-row:first-child { border-top: 0; }
+  .bw-row:active { background: var(--card2); }
+  .bw-row .wk { font-size: 17px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bw-row .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .bw-row .v small { font-size: 14px; color: var(--muted); margin-left: 2px; }
+  .bw-row .d { text-align: right; font-size: 16px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .empty-note { text-align: center; color: var(--muted); font-size: 16px; padding: 18px; }
+
+  /* ---------- 詳細紀錄編輯 ---------- */
+  .ghost-btn { flex: none; height: 52px; padding: 0 18px; border-radius: 16px; background: var(--card); font-size: 18px; font-weight: 700; color: var(--muted); }
+  .lcard { background: var(--card); border-radius: var(--radius); padding: 16px 14px 14px; }
+  .lcard .card-head { margin-bottom: 8px; }
+  .plan { font-size: 15px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .shead, .srow { display: grid; grid-template-columns: minmax(24px, 40px) minmax(0, 1fr) minmax(0, 1fr) minmax(28px, 36px); gap: 6px; align-items: center; }
+  .shead { font-size: 13px; font-weight: 700; color: var(--muted); text-align: center; padding: 2px 0 4px; }
+  .srow { margin-top: 6px; }
+  .sidx { font-size: 16px; font-weight: 700; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .mini { display: grid; grid-template-columns: minmax(30px, 42px) minmax(0, 1fr) minmax(30px, 42px); align-items: center; background: var(--card2); border-radius: 12px; overflow: hidden; }
+  .mini button { height: 50px; font-size: 26px; }
+  .mini button:active { background: var(--line); }
+  .mini button:disabled { opacity: .3; }
+  .mini .val { text-align: center; font-size: 21px; overflow: hidden; white-space: nowrap; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .mini .val.changed { color: var(--accent); }
+  .del { height: 44px; border-radius: 12px; font-size: 22px; color: var(--muted); }
+  .del:active { background: var(--card2); }
+  .add-set { width: 100%; margin-top: 10px; height: 46px; border-radius: 12px; font-size: 17px; font-weight: 700; color: var(--accent); box-shadow: inset 0 0 0 2px var(--line); }
+  @media (max-width: 359px) {
+    .shead { display: none; }
+    .srow { grid-template-columns: 28px minmax(0, 1fr) 32px; grid-template-areas: "i w d" "i r d"; row-gap: 6px; margin-top: 12px; }
+    .srow .sidx { grid-area: i; }
+    .srow .mini:nth-of-type(2) { grid-area: w; }
+    .srow .mini:nth-of-type(3) { grid-area: r; }
+    .srow .del { grid-area: d; }
+    .mini { grid-template-columns: 48px minmax(0, 1fr) 48px; }
+    .mini .val::after { content: attr(data-unit); font-size: 13px; color: var(--muted); margin-left: 3px; }
+  }
+  .skip-note { text-align: center; color: var(--muted); font-size: 15px; padding: 8px 0 2px; }
+
+  /* 某天的紀錄摘要（底部選單內） */
+  .day-sum { text-align: left; background: var(--card2); border-radius: 14px; padding: 10px 14px; margin: -4px 0 14px; font-size: 16px; line-height: 1.55; }
+  .day-sum b { display: inline-block; min-width: 5.2em; }
+  .day-sum span { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* 體重輸入 */
+  .bw-input { width: 100%; height: 72px; border-radius: 16px; border: 2px solid var(--line); background: var(--card2); color: var(--text);
+              font: inherit; font-size: 34px; font-weight: 800; text-align: center; margin-bottom: 6px; -webkit-user-select: text; user-select: text; }
+  .bw-input:focus { outline: none; border-color: var(--accent); }
+  .bw-err { min-height: 22px; font-size: 15px; color: var(--accentA); margin-bottom: 8px; }
+  .sheet .sub-p { margin: -8px 0 14px; font-size: 16px; font-weight: 500; color: var(--muted); }
+
   /* ---------- 底部選單 ---------- */
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center;
            padding: 16px calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px); z-index: 20; }
@@ -211,6 +272,7 @@
   <section class="week" aria-label="本週訓練紀錄">
     <div class="week-head"><b id="weekRange"></b><span id="weekCount"></span></div>
     <div class="days" id="days"></div>
+    <button type="button" class="bw-chip" id="bwChip"></button>
   </section>
 
   <nav class="switch" aria-label="選擇今天的組別">
@@ -272,26 +334,59 @@
     <div class="stat a"><b id="sumA">0</b><span>胸肩背組</span></div>
     <div class="stat b"><b id="sumB">0</b><span>上下肢組</span></div>
   </div>
-  <div class="hint">最右欄是該週次數（目標 4 次）・點日期可補登或修改</div>
+  <div class="hint">最右欄是該週次數（目標 4 次）・點日期可查看或修改紀錄</div>
+
+  <div class="sec-title">每週體重</div>
+  <div class="bw-list" id="bwList"></div>
+</div>
+
+<!-- =============== 詳細訓練紀錄 =============== -->
+<div id="logView" hidden>
+  <header>
+    <div>
+      <div class="eyebrow" id="logDate"></div>
+      <h1><span class="tag" id="logTitle"></span> 紀錄</h1>
+    </div>
+    <button type="button" class="ghost-btn" id="cancelLog">取消</button>
+  </header>
+  <div class="hint" style="margin:-6px 0 14px">已照計畫填好，實際做得不同再調整</div>
+  <main class="list" id="logList"></main>
+  <button type="button" class="check-today" id="saveLog"></button>
 </div>
 
 <!-- 選擇某天練了哪一組 -->
 <div class="modal" id="dayModal" role="dialog" aria-modal="true" aria-labelledby="dayModalText">
   <div class="sheet">
     <p id="dayModalText"></p>
+    <div class="day-sum" id="daySum" hidden></div>
     <div class="btns">
-      <button type="button" class="gA" data-pick="A">胸肩背組</button>
-      <button type="button" class="gB" data-pick="B">上下肢組</button>
+      <button type="button" class="gA" data-pick="A" id="pickA">胸肩背組</button>
+      <button type="button" class="gB" data-pick="B" id="pickB">上下肢組</button>
       <button type="button" data-pick="clear" id="clearDay">沒有練（清除）</button>
       <button type="button" class="plain" data-pick="cancel">取消</button>
     </div>
   </div>
 </div>
 
+<!-- 體重 -->
+<div class="modal" id="bwModal" role="dialog" aria-modal="true" aria-labelledby="bwTitle">
+  <div class="sheet">
+    <p id="bwTitle"></p>
+    <p class="sub-p" id="bwSub"></p>
+    <input class="bw-input" id="bwInput" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-label="體重（公斤）">
+    <div class="bw-err" id="bwErr" aria-live="polite"></div>
+    <div class="btns two">
+      <button type="button" id="bwLater">稍後再說</button>
+      <button type="button" class="danger" id="bwSave">儲存</button>
+    </div>
+    <div class="btns" style="margin-top:10px"><button type="button" class="plain" id="bwClear" hidden>刪除這週的體重</button></div>
+  </div>
+</div>
+
 <!-- 重設確認 -->
 <div class="modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetText">
   <div class="sheet">
-    <p id="resetText">把所有重量、次數、組數<br>恢復成預設值？<br><small style="font-weight:500;color:var(--muted)">（本週打勾紀錄不受影響）</small></p>
+    <p id="resetText">把所有重量、次數、組數<br>恢復成預設值？<br><small style="font-weight:500;color:var(--muted)">（打勾、詳細紀錄、體重都不受影響）</small></p>
     <div class="btns two">
       <button type="button" id="cancelReset">取消</button>
       <button type="button" class="danger" id="confirmReset">重設</button>
@@ -311,6 +406,9 @@
   var REPS = [6, 8, 10, 12];
   var SETS = [3, 4];
   var DOW = ['日', '一', '二', '三', '四', '五', '六'];
+  var MAX_SETS = 10;
+  var MAX_REPS = 99;
+  var BW_MIN = 200, BW_MAX = 3000;   // 體重 20–300 kg（0.1 kg 單位）
 
   var GROUPS = {
     A: { title: '胸肩背組' },
@@ -342,6 +440,8 @@
     return out;
   }
   function md(d) { return (d.getMonth() + 1) + '/' + d.getDate(); }
+  function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function weekKey(d) { return keyOf(weekDays(d)[0]); }   // 該週週一的日期當作週的代號
 
   // ---------- 儲存（全部包 try/catch） ----------
   var storageOK = true;
@@ -358,7 +458,7 @@
   function defaults() {
     var ex = {};
     EXERCISES.forEach(function (e) { ex[e.id] = { w: e.w, r: e.r, s: e.s }; });
-    return { group: 'A', ex: ex, log: {} };
+    return { group: 'A', ex: ex, log: {}, detail: {}, bw: {} };
   }
 
   function validW(e, w) { return Number.isInteger(w) && w >= 0 && w <= MAX_TENTHS; }
@@ -381,6 +481,29 @@
       var cutKey = keyOf(cutoff);
       Object.keys(raw.log).forEach(function (k) {
         if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= cutKey && (raw.log[k] === 'A' || raw.log[k] === 'B')) st.log[k] = raw.log[k];
+      });
+    }
+    // 詳細紀錄：只留有打勾的日子，且只留該組的動作
+    if (raw.detail && typeof raw.detail === 'object') {
+      Object.keys(st.log).forEach(function (k) {
+        var d = raw.detail[k];
+        if (!d || typeof d !== 'object') return;
+        var clean = {};
+        EXERCISES.forEach(function (e) {
+          if (e.g !== st.log[k] || !Array.isArray(d[e.id])) return;
+          clean[e.id] = d[e.id].filter(function (x) {
+            return Array.isArray(x) && x.length === 2 && validW(e, x[0]) && Number.isInteger(x[1]) && x[1] >= 0 && x[1] <= MAX_REPS;
+          }).slice(0, MAX_SETS).map(function (x) { return [x[0], x[1]]; });
+        });
+        st.detail[k] = clean;
+      });
+    }
+    if (raw.bw && typeof raw.bw === 'object') {
+      var cut2 = today(); cut2.setDate(cut2.getDate() - KEEP_DAYS);
+      var cutKey2 = keyOf(cut2);
+      Object.keys(raw.bw).forEach(function (k) {
+        var v = raw.bw[k];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= cutKey2 && Number.isInteger(v) && v >= BW_MIN && v <= BW_MAX) st.bw[k] = v;
       });
     }
     return st;
@@ -437,6 +560,10 @@
     document.getElementById('weekRange').textContent = '本週 ' + md(days[0]) + ' – ' + md(days[6]);
     var cnt = days.filter(function (d) { return state.log[keyOf(d)]; }).length;
     document.getElementById('weekCount').textContent = '已練 ' + cnt + ' / ' + WEEK_GOAL + ' 次';
+    var bwv = state.bw[weekKey(t)];
+    var chip = document.getElementById('bwChip');
+    chip.classList.toggle('missing', !bwv);
+    chip.replaceChildren(el('span', { text: '本週體重' }), bwv ? el('b', {}, [fmtKg(bwv) + ' kg']) : el('b', { text: '還沒量，點此記錄' }));
 
     var box = document.getElementById('days');
     box.replaceChildren.apply(box, days.map(function (d) {
@@ -488,7 +615,7 @@
     var done = state.log[todayKey];
     btn.classList.toggle('is-done', !!done);
     btn.replaceChildren(svgCheck(), document.createTextNode(
-      done ? '今天已完成：' + GROUPS[done].title + '（點此修改）' : '今天練完了，打勾'
+      done ? '今天已完成：' + GROUPS[done].title + '（點此查看）' : '今天練完了，記錄並打勾'
     ));
   }
 
@@ -585,6 +712,128 @@
     document.getElementById('sumAll').textContent = String(sumA + sumB);
     document.getElementById('sumA').textContent = String(sumA);
     document.getElementById('sumB').textContent = String(sumB);
+    renderBwList();
+  }
+
+  function renderBwList() {
+    var keys = Object.keys(state.bw).sort().reverse();
+    var box = document.getElementById('bwList');
+    if (!keys.length) { box.replaceChildren(el('div', { class: 'empty-note', text: '還沒有體重紀錄' })); return; }
+    box.replaceChildren.apply(box, keys.map(function (k, i) {
+      var v = state.bw[k], prev = state.bw[keys[i + 1]];
+      var start = parseKey(k), end = new Date(start); end.setDate(start.getDate() + 6);
+      var diff = prev ? v - prev : null;
+      var dTxt = diff === null ? '' : diff === 0 ? '±0' : (diff > 0 ? '+' : '−') + fmtKg(Math.abs(diff));
+      return el('button', { type: 'button', class: 'bw-row', 'data-bw': k, 'aria-label': md(start) + ' 那週體重 ' + fmtKg(v) + ' 公斤' }, [
+        el('span', { class: 'wk', text: md(start) + ' – ' + md(end) }),
+        el('span', { class: 'v' }, [fmtKg(v), el('small', { text: 'kg' })]),
+        el('span', { class: 'd', text: dTxt })
+      ]);
+    }));
+  }
+
+  // ---------- 詳細訓練紀錄 ----------
+  var editing = null;          // { day, g, sets: { id: [[w, r], ...] } }
+  var returnView = 'main';
+
+  function planSets(e) {
+    var v = state.ex[e.id], out = [];
+    for (var i = 0; i < v.s; i++) out.push([v.w, v.r]);
+    return out;
+  }
+
+  function openLog(day, g) {
+    var sets = {};
+    var old = state.log[day] === g ? state.detail[day] : null;
+    EXERCISES.filter(function (e) { return e.g === g; }).forEach(function (e) {
+      sets[e.id] = (old && old[e.id]) ? old[e.id].map(function (x) { return x.slice(); }) : planSets(e);
+    });
+    editing = { day: day, g: g, sets: sets };
+    returnView = view === 'log' ? returnView : view;
+    showView('log');
+  }
+
+  function miniStepper(kind, id, i, val, text, min, max, changed) {
+    var minus = el('button', { type: 'button', text: '−', 'aria-label': '減少', 'data-act': kind, 'data-id': id, 'data-i': String(i), 'data-v': '-1' });
+    var plus  = el('button', { type: 'button', text: '+', 'aria-label': '增加', 'data-act': kind, 'data-id': id, 'data-i': String(i), 'data-v': '1' });
+    if (val <= min) minus.disabled = true;
+    if (val >= max) plus.disabled = true;
+    return el('div', { class: 'mini' }, [minus, el('div', { class: 'val' + (changed ? ' changed' : ''), text: text, 'data-unit': kind === 'lw' ? 'kg' : '下' }), plus]);
+  }
+
+  function logCard(e) {
+    var v = state.ex[e.id], sets = editing.sets[e.id];
+    var planTxt = '計畫 ' + (v.w ? fmtKg(v.w) + 'kg · ' : '') + v.r + '×' + v.s;
+    var kids = [
+      el('div', { class: 'card-head' }, [el('div', { class: 'name', text: e.name }), el('div', { class: 'plan', text: planTxt })])
+    ];
+    if (sets.length) {
+      kids.push(el('div', { class: 'shead' }, [el('span', { text: '組' }), el('span', { text: '重量 kg' + (e.note ? '（' + e.note + '）' : '') }), el('span', { text: '次數' }), el('span')]));
+      sets.forEach(function (x, i) {
+        kids.push(el('div', { class: 'srow' }, [
+          el('div', { class: 'sidx', text: String(i + 1) }),
+          miniStepper('lw', e.id, i, x[0], fmtKg(x[0]), 0, MAX_TENTHS, x[0] !== v.w),
+          miniStepper('lr', e.id, i, x[1], String(x[1]), 0, MAX_REPS, x[1] !== v.r),
+          el('button', { type: 'button', class: 'del', text: '×', 'aria-label': '刪除第 ' + (i + 1) + ' 組', 'data-act': 'ldel', 'data-id': e.id, 'data-i': String(i) })
+        ]));
+      });
+    } else {
+      kids.push(el('div', { class: 'skip-note', text: '這個動作今天沒做' }));
+    }
+    var add = el('button', { type: 'button', class: 'add-set', text: '＋ 新增一組', 'data-act': 'ladd', 'data-id': e.id });
+    if (sets.length >= MAX_SETS) add.disabled = true;
+    kids.push(add);
+    return el('section', { class: 'lcard', 'data-lcard': e.id }, kids);
+  }
+
+  function renderLog() {
+    var d = parseKey(editing.day);
+    document.body.setAttribute('data-group', editing.g);
+    document.getElementById('logDate').textContent = (editing.day === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）';
+    document.getElementById('logTitle').textContent = GROUPS[editing.g].title;
+    var list = document.getElementById('logList');
+    list.replaceChildren.apply(list, EXERCISES.filter(function (e) { return e.g === editing.g; }).map(logCard));
+    var btn = document.getElementById('saveLog');
+    btn.replaceChildren(svgCheck(), document.createTextNode(state.log[editing.day] ? '儲存修改' : '儲存並打勾'));
+  }
+
+  function saveLog() {
+    var day = editing.day, g = editing.g;
+    var wk = weekKey(parseKey(day));
+    var firstThisWeek = weekDays(parseKey(day)).filter(function (d) { var k = keyOf(d); return k !== day && state.log[k]; }).length === 0;
+    state.log[day] = g;
+    state.detail[day] = editing.sets;
+    if (day === todayKey) state.group = g;
+    save();
+    editing = null;
+    showView(returnView);
+    // 本週第一次訓練、且這週還沒量體重 → 提醒量體重
+    if (firstThisWeek && wk === weekKey(today()) && !state.bw[wk]) openBw(wk, true);
+  }
+
+  // ---------- 體重 ----------
+  var bwModal = document.getElementById('bwModal');
+  var bwWeek = null;
+  function openBw(wk, isReminder) {
+    bwWeek = wk;
+    var start = parseKey(wk), end = new Date(start); end.setDate(start.getDate() + 6);
+    document.getElementById('bwTitle').textContent = isReminder ? '本週第一次訓練完成！' : '記錄體重';
+    document.getElementById('bwSub').textContent = (isReminder ? '記得量一下體重・' : '') + md(start) + ' – ' + md(end) + ' 這週';
+    var input = document.getElementById('bwInput');
+    var cur = state.bw[wk];
+    var prevKeys = Object.keys(state.bw).filter(function (k) { return k < wk; }).sort();
+    input.value = cur ? fmtKg(cur) : '';
+    input.placeholder = prevKeys.length ? '上次 ' + fmtKg(state.bw[prevKeys[prevKeys.length - 1]]) : '例如 70.5';
+    document.getElementById('bwErr').textContent = '';
+    document.getElementById('bwClear').hidden = !cur;
+    bwModal.classList.add('open');
+  }
+  function closeBw() { bwModal.classList.remove('open'); bwWeek = null; document.getElementById('bwInput').blur(); }
+  function parseBw(txt) {
+    var t = String(txt).trim().replace('，', '.').replace(',', '.').replace(/\s*kg$/i, '');
+    if (!/^\d{1,3}(\.\d)?$/.test(t)) return null;
+    var v = Math.round(parseFloat(t) * 10);
+    return (v >= BW_MIN && v <= BW_MAX) ? v : null;
   }
 
   // ---------- 頁面切換 ----------
@@ -594,8 +843,10 @@
     document.getElementById('mainView').hidden = name !== 'main';
     document.getElementById('settingsView').hidden = name !== 'settings';
     document.getElementById('historyView').hidden = name !== 'history';
+    document.getElementById('logView').hidden = name !== 'log';
     if (name === 'settings') { settingsGroup = state.group; renderSettings(); }
-    else if (name === 'history') { calMonth = maxMonth(); renderHistory(); }
+    else if (name === 'history') { if (returnView !== 'history' || !calMonth) calMonth = maxMonth(); renderHistory(); }
+    else if (name === 'log') renderLog();
     else renderMain();
     window.scrollTo(0, 0);
   }
@@ -614,10 +865,25 @@
   var pickingDay = null;
   function openDay(k) {
     pickingDay = k;
-    var p = k.split('-'); var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    var d = parseKey(k), g = state.log[k];
     document.getElementById('dayModalText').textContent =
-      (k === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）練了哪一組？';
-    document.getElementById('clearDay').hidden = !state.log[k];
+      (k === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）' + (g ? '・' + GROUPS[g].title : '練了哪一組？');
+    // 詳細紀錄摘要
+    var sum = document.getElementById('daySum'), det = state.detail[k];
+    if (g && det) {
+      sum.replaceChildren.apply(sum, EXERCISES.filter(function (e) { return e.g === g; }).map(function (e) {
+        var sets = det[e.id] || [];
+        var txt = sets.length ? sets.map(function (x) { return x[0] ? fmtKg(x[0]) + '×' + x[1] : x[1] + '下'; }).join('、') : '沒做';
+        return el('div', {}, [el('b', { text: e.name }), el('span', { text: txt })]);
+      }));
+      sum.hidden = false;
+    } else if (g) {
+      sum.replaceChildren(el('div', {}, [el('span', { text: '這天只有打勾，沒有詳細紀錄' })]));
+      sum.hidden = false;
+    } else sum.hidden = true;
+    document.getElementById('pickA').textContent = g === 'A' ? '編輯紀錄' : (g ? '改成 胸肩背組' : '胸肩背組');
+    document.getElementById('pickB').textContent = g === 'B' ? '編輯紀錄' : (g ? '改成 上下肢組' : '上下肢組');
+    document.getElementById('clearDay').hidden = !g;
     dayModal.classList.add('open');
   }
   document.getElementById('days').addEventListener('click', function (ev) {
@@ -626,27 +892,28 @@
   });
   document.getElementById('checkToday').addEventListener('click', function () {
     if (state.log[todayKey]) { openDay(todayKey); return; }
-    state.log[todayKey] = state.group; save(); renderMain();
+    openLog(todayKey, state.group);
   });
   dayModal.addEventListener('click', function (ev) {
     if (ev.target === dayModal) { dayModal.classList.remove('open'); return; }
     var b = ev.target.closest('button[data-pick]');
     if (!b || !pickingDay) return;
     var pick = b.getAttribute('data-pick');
-    if (pick === 'A' || pick === 'B') {
-      state.log[pickingDay] = pick;
-      if (pickingDay === todayKey) state.group = pick;
-    } else if (pick === 'clear') {
-      delete state.log[pickingDay];
-    }
-    if (pick !== 'cancel') { save(); renderCurrent(); }
+    var day = pickingDay;
     dayModal.classList.remove('open');
     pickingDay = null;
+    if (pick === 'A' || pick === 'B') {
+      openLog(day, pick);
+    } else if (pick === 'clear') {
+      delete state.log[day];
+      delete state.detail[day];
+      save(); renderCurrent();
+    }
   });
 
   document.getElementById('openSettings').addEventListener('click', function () { showView('settings'); });
   document.getElementById('closeSettings').addEventListener('click', function () { showView('main'); });
-  document.getElementById('openHistory').addEventListener('click', function () { showView('history'); });
+  document.getElementById('openHistory').addEventListener('click', function () { returnView = 'main'; calMonth = maxMonth(); showView('history'); });
   document.getElementById('closeHistory').addEventListener('click', function () { showView('main'); });
   document.getElementById('prevMonth').addEventListener('click', function () {
     if (calMonth > minMonth()) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderHistory(); }
@@ -657,6 +924,47 @@
   document.getElementById('calGrid').addEventListener('click', function (ev) {
     var b = ev.target.closest('button[data-day]');
     if (b && !b.disabled) openDay(b.getAttribute('data-day'));
+  });
+
+  // ---------- 操作：詳細紀錄 ----------
+  document.getElementById('logList').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-act]');
+    if (!b || b.disabled || !editing) return;
+    var id = b.getAttribute('data-id'), e = byId(id), sets = editing.sets[id];
+    if (!e || !sets) return;
+    var act = b.getAttribute('data-act');
+    var i = parseInt(b.getAttribute('data-i'), 10);
+    var n = parseInt(b.getAttribute('data-v'), 10);
+    if (act === 'lw' && sets[i]) sets[i][0] = Math.min(MAX_TENTHS, Math.max(0, sets[i][0] + n * e.step));
+    else if (act === 'lr' && sets[i]) sets[i][1] = Math.min(MAX_REPS, Math.max(0, sets[i][1] + n));
+    else if (act === 'ldel' && sets[i]) sets.splice(i, 1);
+    else if (act === 'ladd' && sets.length < MAX_SETS) {
+      var last = sets[sets.length - 1], v = state.ex[id];
+      sets.push(last ? last.slice() : [v.w, v.r]);
+    } else return;
+    var old = document.querySelector('[data-lcard="' + id + '"]');
+    if (old) old.replaceWith(logCard(e));
+  });
+  document.getElementById('saveLog').addEventListener('click', function () { if (editing) saveLog(); });
+  document.getElementById('cancelLog').addEventListener('click', function () { editing = null; showView(returnView); });
+
+  // ---------- 操作：體重 ----------
+  document.getElementById('bwChip').addEventListener('click', function () { openBw(weekKey(today()), false); });
+  document.getElementById('bwList').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-bw]');
+    if (b) openBw(b.getAttribute('data-bw'), false);
+  });
+  document.getElementById('bwLater').addEventListener('click', closeBw);
+  bwModal.addEventListener('click', function (ev) { if (ev.target === bwModal) closeBw(); });
+  function doSaveBw() {
+    var v = parseBw(document.getElementById('bwInput').value);
+    if (v === null) { document.getElementById('bwErr').textContent = '請輸入 20 到 300 之間的數字，例如 70.5'; return; }
+    state.bw[bwWeek] = v; save(); closeBw(); renderCurrent();
+  }
+  document.getElementById('bwSave').addEventListener('click', doSaveBw);
+  document.getElementById('bwInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') doSaveBw(); });
+  document.getElementById('bwClear').addEventListener('click', function () {
+    delete state.bw[bwWeek]; save(); closeBw(); renderCurrent();
   });
 
   // ---------- 操作：設定頁 ----------
@@ -689,8 +997,8 @@
   document.getElementById('cancelReset').addEventListener('click', function () { resetModal.classList.remove('open'); });
   resetModal.addEventListener('click', function (ev) { if (ev.target === resetModal) resetModal.classList.remove('open'); });
   document.getElementById('confirmReset').addEventListener('click', function () {
-    var keep = { group: state.group, log: state.log };
-    state = defaults(); state.group = keep.group; state.log = keep.log;
+    var keep = { group: state.group, log: state.log, detail: state.detail, bw: state.bw };
+    state = defaults(); state.group = keep.group; state.log = keep.log; state.detail = keep.detail; state.bw = keep.bw;
     save(); renderSettings();
     resetModal.classList.remove('open');
   });
