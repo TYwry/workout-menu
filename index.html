@@ -164,6 +164,7 @@
   .cd[data-g].today { box-shadow: inset 0 0 0 3px var(--bg); outline: 2px solid var(--text); }
   .wkc { text-align: center; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; border-radius: 10px; padding: 6px 0; background: var(--card2); color: var(--muted); }
   .wkc.full { color: var(--text); }
+  .wkc.none { background: none; }
   .cal-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
   .stat { background: var(--card); border-radius: 16px; padding: 12px 8px; text-align: center; }
   .stat b { display: block; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -227,6 +228,74 @@
   .day-sum { text-align: left; background: var(--card2); border-radius: 14px; padding: 10px 14px; margin: -4px 0 14px; font-size: 16px; line-height: 1.55; }
   .day-sum b { display: inline-block; min-width: 5.2em; }
   .day-sum span { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ---------- 筆記 ---------- */
+  .sheet { max-height: calc(100vh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .day-note { text-align: left; border-radius: 14px; padding: 12px 14px; margin: -4px 0 14px; font-size: 17px; line-height: 1.6;
+              white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: inset 3px 0 0 var(--accent); background: var(--card2); }
+  .day-note .lbl { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 2px; white-space: normal; }
+  .note-area { width: 100%; min-height: 150px; resize: vertical; border-radius: 16px; border: 2px solid var(--line); background: var(--card2); color: var(--text);
+               font: inherit; font-size: 18px; line-height: 1.55; padding: 12px 14px; -webkit-user-select: text; user-select: text; }
+  .note-area:focus { outline: none; border-color: var(--accent); }
+  .note-count { text-align: right; font-size: 13px; color: var(--muted); margin: 4px 2px 10px; font-variant-numeric: tabular-nums; }
+  .log-note { background: var(--card); border-radius: var(--radius); padding: 16px 14px 6px; margin-top: 14px; }
+  .log-note label { display: block; font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+  .log-note label small { font-size: 15px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+  .day .num, .cd { position: relative; }
+  .day.has-note .num::after, .cd.has-note::after { content: ""; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--text); opacity: .85; }
+  .day.has-note .num::after { top: -5px; left: 50%; margin-left: -4px; width: 6px; height: 6px; }
+  .day.has-note .num { padding-top: 4px; }
+  .day:not(.has-note) .num { padding-top: 4px; }
+  .cd.has-note::after { top: 2px; right: 2px; box-shadow: 0 0 0 2px var(--card); }
+  .sheet button.note-btn { background: none; box-shadow: inset 0 0 0 2px var(--line); color: var(--text); }
+
+  /* ---------- 每週 4 次鼓勵動畫 ---------- */
+  .cheer { position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column; align-items: center; justify-content: center;
+           background: rgba(8, 10, 14, .82); padding: calc(env(safe-area-inset-top) + 20px) 24px calc(env(safe-area-inset-bottom) + 24px); }
+  .cheer.open { display: flex; animation: cheerFade .25s ease-out both; }
+  .bubble { position: relative; background: #fff; color: #10131a; border-radius: 22px; padding: 16px 22px; text-align: center; max-width: 320px;
+            margin-bottom: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); transform-origin: 50% 100%; animation: bubbleIn .45s .55s cubic-bezier(.3,1.6,.5,1) both; }
+  .bubble::after { content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -12px; border: 12px solid transparent; border-bottom: 0; border-top-color: #fff; }
+  .bubble b { display: block; font-size: clamp(22px, 7.4vw, 30px); font-weight: 900; letter-spacing: .02em; white-space: nowrap; }
+  .bubble span { display: block; font-size: clamp(16px, 5vw, 19px); font-weight: 700; margin-top: 4px; color: #3a4150; }
+  .stage { position: relative; width: 230px; height: 230px; }
+  .mascot { width: 230px; height: 230px; display: block; transform-origin: 50% 100%; animation: jumpIn .9s cubic-bezier(.25,.9,.3,1.2) both, idle 1.4s 1.1s ease-in-out infinite; }
+  .mascot .arm-r { transform-origin: 136px 70px; animation: wave .5s 1s ease-in-out 4 alternate; }
+  .mascot .arm-l { transform-origin: 64px 70px; animation: flex .6s .9s ease-in-out 2 alternate; }
+  .mascot .eyes { transform-origin: 100px 98px; animation: blink 3.2s 2s infinite; }
+  .spark { position: absolute; width: 34px; height: 34px; opacity: 0; animation: sparkPop 1.1s ease-out both; }
+  .spark path { fill: #ffd76a; }
+  .spark.s1 { left: -6px; top: 30px; animation-delay: .7s; }
+  .spark.s2 { right: -4px; top: 10px; width: 26px; height: 26px; animation-delay: .85s; }
+  .spark.s3 { left: 18px; top: -18px; width: 22px; height: 22px; animation-delay: 1s; }
+  .spark.s4 { right: 14px; top: 120px; width: 22px; height: 22px; animation-delay: 1.15s; }
+  .week-dots { display: flex; gap: 10px; margin: 18px 0 6px; }
+  .week-dots i { width: 18px; height: 18px; border-radius: 50%; background: var(--accentA); animation: dotPop .35s cubic-bezier(.3,1.8,.5,1) both; }
+  .week-dots i:nth-child(2n) { background: var(--accentB); }
+  .week-dots i:nth-child(1) { animation-delay: 1.0s; } .week-dots i:nth-child(2) { animation-delay: 1.1s; }
+  .week-dots i:nth-child(3) { animation-delay: 1.2s; } .week-dots i:nth-child(4) { animation-delay: 1.3s; }
+  .cheer-go { margin-top: 22px; width: 100%; max-width: 360px; height: 62px; border-radius: 18px; background: #f3f5f9; color: #10131a; font-size: 21px; font-weight: 900;
+              box-shadow: 0 5px 0 #b9bfcc; animation: rise .4s 1.2s ease-out both; }
+  .cheer-go:active { transform: translateY(4px); box-shadow: 0 1px 0 #b9bfcc; }
+  @keyframes cheerFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes jumpIn {
+    0%   { transform: translateY(110vh) scale(.9, 1.1); }
+    55%  { transform: translateY(-40px) scale(.95, 1.06); }
+    72%  { transform: translateY(0) scale(1.14, .84); }
+    86%  { transform: translateY(-10px) scale(.97, 1.04); }
+    100% { transform: translateY(0) scale(1, 1); }
+  }
+  @keyframes idle { 0%, 100% { transform: translateY(0) scale(1, 1); } 45% { transform: translateY(-12px) scale(.98, 1.03); } 60% { transform: translateY(0) scale(1.05, .95); } }
+  @keyframes wave { from { transform: rotate(-18deg); } to { transform: rotate(22deg); } }
+  @keyframes flex { from { transform: rotate(0); } to { transform: rotate(-14deg); } }
+  @keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  @keyframes bubbleIn { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+  @keyframes sparkPop { 0% { opacity: 0; transform: scale(.2) rotate(0); } 40% { opacity: 1; transform: scale(1.2) rotate(20deg); } 100% { opacity: .9; transform: scale(1) rotate(40deg); } }
+  @keyframes dotPop { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .cheer *, .cheer.open { animation: cheerFade .3s ease-out both !important; }
+  }
 
   /* 體重輸入 */
   .bw-input { width: 100%; height: 72px; border-radius: 16px; border: 2px solid var(--line); background: var(--card2); color: var(--text);
@@ -351,6 +420,11 @@
   </header>
   <div class="hint" style="margin:-6px 0 14px">已照計畫填好，實際做得不同再調整</div>
   <main class="list" id="logList"></main>
+  <section class="log-note">
+    <label for="logNote">今日心得<small>選填</small></label>
+    <textarea class="note-area" id="logNote" maxlength="1000" placeholder="例如：今天狀態不錯、右肩有點緊、下次臥推可以加重"></textarea>
+    <div class="note-count" id="logNoteCount">0 / 1000</div>
+  </section>
   <button type="button" class="check-today" id="saveLog"></button>
 </div>
 
@@ -359,13 +433,68 @@
   <div class="sheet">
     <p id="dayModalText"></p>
     <div class="day-sum" id="daySum" hidden></div>
+    <div class="day-note" id="dayNote" hidden></div>
     <div class="btns">
       <button type="button" class="gA" data-pick="A" id="pickA">胸肩背組</button>
       <button type="button" class="gB" data-pick="B" id="pickB">上下肢組</button>
+      <button type="button" class="note-btn" data-pick="note" id="noteBtn">寫筆記</button>
       <button type="button" data-pick="clear" id="clearDay">沒有練（清除）</button>
       <button type="button" class="plain" data-pick="cancel">取消</button>
     </div>
   </div>
+</div>
+
+<!-- 筆記 -->
+<div class="modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
+  <div class="sheet">
+    <p id="noteTitle"></p>
+    <textarea class="note-area" id="noteInput" maxlength="1000" placeholder="想記下什麼都可以，例如：今天休息，腿還有點痠"></textarea>
+    <div class="note-count" id="noteCount">0 / 1000</div>
+    <div class="btns two">
+      <button type="button" id="noteCancel">取消</button>
+      <button type="button" class="danger" id="noteSave">儲存</button>
+    </div>
+    <div class="btns" style="margin-top:10px"><button type="button" class="plain" id="noteDelete" hidden>刪除這則筆記</button></div>
+  </div>
+</div>
+
+<!-- 每週 4 次鼓勵 -->
+<div class="cheer" id="cheer" role="dialog" aria-modal="true" aria-labelledby="cheerTitle">
+  <div class="bubble"><b id="cheerTitle">本週 4/4 完成！</b><span id="cheerMsg"></span></div>
+  <div class="stage">
+    <svg class="spark s1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 8.4L24 12l-9.4 3.6L12 24l-2.6-8.4L0 12l9.4-3.6z"/></svg>
+    <svg class="spark s2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 8.4L24 12l-9.4 3.6L12 24l-2.6-8.4L0 12l9.4-3.6z"/></svg>
+    <svg class="spark s3" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 8.4L24 12l-9.4 3.6L12 24l-2.6-8.4L0 12l9.4-3.6z"/></svg>
+    <svg class="spark s4" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 8.4L24 12l-9.4 3.6L12 24l-2.6-8.4L0 12l9.4-3.6z"/></svg>
+    <!-- 原創角色「小啞鈴」 -->
+    <svg class="mascot" viewBox="0 0 200 200" aria-hidden="true">
+      <ellipse cx="100" cy="190" rx="58" ry="7" fill="#000" opacity=".25"/>
+      <!-- 手臂 -->
+      <g class="arm-l"><path d="M66 78 Q44 64 46 38" stroke="#f1d9bf" stroke-width="13" fill="none" stroke-linecap="round"/><circle cx="46" cy="34" r="11" fill="#f1d9bf"/></g>
+      <g class="arm-r"><path d="M134 78 Q156 64 154 38" stroke="#f1d9bf" stroke-width="13" fill="none" stroke-linecap="round"/><circle cx="154" cy="34" r="11" fill="#f1d9bf"/></g>
+      <!-- 左右槓片 -->
+      <rect x="8" y="78" width="30" height="92" rx="12" fill="#c97a70"/>
+      <rect x="30" y="92" width="20" height="64" rx="8" fill="#a8635a"/>
+      <rect x="162" y="78" width="30" height="92" rx="12" fill="#6f8fc4"/>
+      <rect x="150" y="92" width="20" height="64" rx="8" fill="#56719f"/>
+      <!-- 身體（握把） -->
+      <rect x="46" y="64" width="108" height="112" rx="44" fill="#f7e8d6"/>
+      <path d="M58 150 Q100 170 142 150" stroke="#e8cfb3" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- 腳 -->
+      <ellipse cx="80" cy="182" rx="15" ry="8" fill="#e3c6a6"/><ellipse cx="120" cy="182" rx="15" ry="8" fill="#e3c6a6"/>
+      <!-- 臉 -->
+      <g class="eyes">
+        <ellipse cx="80" cy="100" rx="9" ry="12" fill="#232833"/><circle cx="83" cy="95" r="3.4" fill="#fff"/>
+        <ellipse cx="120" cy="100" rx="9" ry="12" fill="#232833"/><circle cx="123" cy="95" r="3.4" fill="#fff"/>
+      </g>
+      <ellipse cx="66" cy="122" rx="9" ry="6" fill="#f2a08f" opacity=".7"/><ellipse cx="134" cy="122" rx="9" ry="6" fill="#f2a08f" opacity=".7"/>
+      <path d="M86 120 Q100 142 114 120 Z" fill="#7a2e2a"/><path d="M92 129 Q100 136 108 129 Q100 126 92 129Z" fill="#e8746a"/>
+      <!-- 頭上的汗珠 -->
+      <path d="M150 58 q6 9 0 14 q-6 -5 0 -14z" fill="#9cc7f0"/>
+    </svg>
+  </div>
+  <div class="week-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <button type="button" class="cheer-go" id="cheerGo">繼續</button>
 </div>
 
 <!-- 體重 -->
@@ -386,7 +515,7 @@
 <!-- 重設確認 -->
 <div class="modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetText">
   <div class="sheet">
-    <p id="resetText">把所有重量、次數、組數<br>恢復成預設值？<br><small style="font-weight:500;color:var(--muted)">（打勾、詳細紀錄、體重都不受影響）</small></p>
+    <p id="resetText">把所有重量、次數、組數<br>恢復成預設值？<br><small style="font-weight:500;color:var(--muted)">（打勾、詳細紀錄、體重、筆記都不受影響）</small></p>
     <div class="btns two">
       <button type="button" id="cancelReset">取消</button>
       <button type="button" class="danger" id="confirmReset">重設</button>
@@ -407,6 +536,15 @@
   var SETS = [3, 4];
   var DOW = ['日', '一', '二', '三', '四', '五', '六'];
   var MAX_SETS = 10;
+  var MAX_NOTE = 1000;
+  var CHEERS = [
+    '連續撐了一整週，超強！',
+    '說到做到，這週的你很帥！',
+    '肌肉正在默默變強中 💪',
+    '穩定才是最強的天賦！',
+    '這週的努力，下週的力量！',
+    '四次全勤，給自己一個讚！'
+  ];
   var MAX_REPS = 99;
   var BW_MIN = 200, BW_MAX = 3000;   // 體重 20–300 kg（0.1 kg 單位）
 
@@ -458,7 +596,7 @@
   function defaults() {
     var ex = {};
     EXERCISES.forEach(function (e) { ex[e.id] = { w: e.w, r: e.r, s: e.s }; });
-    return { group: 'A', ex: ex, log: {}, detail: {}, bw: {} };
+    return { group: 'A', ex: ex, log: {}, detail: {}, bw: {}, note: {}, cheer: {} };
   }
 
   function validW(e, w) { return Number.isInteger(w) && w >= 0 && w <= MAX_TENTHS; }
@@ -496,6 +634,19 @@
           }).slice(0, MAX_SETS).map(function (x) { return [x[0], x[1]]; });
         });
         st.detail[k] = clean;
+      });
+    }
+    var cut3 = today(); cut3.setDate(cut3.getDate() - KEEP_DAYS);
+    var cutKey3 = keyOf(cut3);
+    if (raw.note && typeof raw.note === 'object') {
+      Object.keys(raw.note).forEach(function (k) {
+        var v = raw.note[k];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= cutKey3 && typeof v === 'string' && v.trim()) st.note[k] = v.slice(0, MAX_NOTE);
+      });
+    }
+    if (raw.cheer && typeof raw.cheer === 'object') {
+      Object.keys(raw.cheer).forEach(function (k) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= cutKey3 && raw.cheer[k] === true) st.cheer[k] = true;
       });
     }
     if (raw.bw && typeof raw.bw === 'object') {
@@ -570,9 +721,9 @@
       var k = keyOf(d), g = state.log[k] || '';
       var future = d > t;
       var b = el('button', {
-        type: 'button', class: 'day' + (k === todayKey ? ' today' : ''),
+        type: 'button', class: 'day' + (k === todayKey ? ' today' : '') + (state.note[k] ? ' has-note' : ''),
         'data-day': k, 'data-g': g,
-        'aria-label': md(d) + ' 星期' + DOW[d.getDay()] + (g ? '，已練' + GROUPS[g].title : '，未練')
+        'aria-label': md(d) + ' 星期' + DOW[d.getDay()] + (g ? '，已練' + GROUPS[g].title : '，未練') + (state.note[k] ? '，有筆記' : '')
       }, [
         el('span', { class: 'dow', text: DOW[d.getDay()] }),
         el('span', { class: 'num', text: String(d.getDate()) }),
@@ -695,16 +846,16 @@
         if (!future) weekHasPast = true;
         if (inMonth && g === 'A') sumA++;
         if (inMonth && g === 'B') sumB++;
-        var cls = 'cd' + (inMonth ? '' : ' out') + (future ? ' future' : '') + (k === todayKey ? ' today' : '');
+        var cls = 'cd' + (inMonth ? '' : ' out') + (future ? ' future' : '') + (k === todayKey ? ' today' : '') + (state.note[k] ? ' has-note' : '');
         var b = el('button', {
           type: 'button', class: cls, 'data-day': k, 'data-g': g, text: String(d.getDate()),
-          'aria-label': (d.getMonth() + 1) + '月' + d.getDate() + '日' + (g ? '，' + GROUPS[g].title : '')
+          'aria-label': (d.getMonth() + 1) + '月' + d.getDate() + '日' + (g ? '，' + GROUPS[g].title : '') + (state.note[k] ? '，有筆記' : '')
         });
         if (future) b.disabled = true;
         cells.push(b);
         cur.setDate(cur.getDate() + 1);
       }
-      cells.push(el('div', { class: 'wkc' + (weekCnt >= WEEK_GOAL ? ' full' : ''), text: weekHasPast ? weekCnt + '/' + WEEK_GOAL : '' }));
+      cells.push(el('div', { class: 'wkc' + (weekCnt >= WEEK_GOAL ? ' full' : '') + (weekHasPast ? '' : ' none'), text: weekHasPast ? weekCnt + '/' + WEEK_GOAL : '' }));
       if (cur.getMonth() !== m) break;
     }
     var grid = document.getElementById('calGrid');
@@ -748,7 +899,7 @@
     EXERCISES.filter(function (e) { return e.g === g; }).forEach(function (e) {
       sets[e.id] = (old && old[e.id]) ? old[e.id].map(function (x) { return x.slice(); }) : planSets(e);
     });
-    editing = { day: day, g: g, sets: sets };
+    editing = { day: day, g: g, sets: sets, note: state.note[day] || '' };
     returnView = view === 'log' ? returnView : view;
     showView('log');
   }
@@ -795,21 +946,71 @@
     list.replaceChildren.apply(list, EXERCISES.filter(function (e) { return e.g === editing.g; }).map(logCard));
     var btn = document.getElementById('saveLog');
     btn.replaceChildren(svgCheck(), document.createTextNode(state.log[editing.day] ? '儲存修改' : '儲存並打勾'));
+    var ta = document.getElementById('logNote');
+    ta.value = editing.note;
+    updateCount(ta, 'logNoteCount');
   }
+
+  function updateCount(ta, id) { document.getElementById(id).textContent = ta.value.length + ' / ' + MAX_NOTE; }
+  function setNote(day, txt) {
+    txt = String(txt || '').slice(0, MAX_NOTE);
+    if (txt.trim()) state.note[day] = txt; else delete state.note[day];
+  }
+  function weekCount(day) { return weekDays(parseKey(day)).filter(function (d) { return state.log[keyOf(d)]; }).length; }
 
   function saveLog() {
     var day = editing.day, g = editing.g;
     var wk = weekKey(parseKey(day));
     var firstThisWeek = weekDays(parseKey(day)).filter(function (d) { var k = keyOf(d); return k !== day && state.log[k]; }).length === 0;
+    var before = weekCount(day);
     state.log[day] = g;
     state.detail[day] = editing.sets;
+    setNote(day, document.getElementById('logNote').value);
     if (day === todayKey) state.group = g;
+    var isThisWeek = wk === weekKey(today());
+    var doCheer = isThisWeek && before < WEEK_GOAL && weekCount(day) >= WEEK_GOAL && !state.cheer[wk];
+    if (doCheer) state.cheer[wk] = true;
     save();
     editing = null;
+    document.getElementById('logNote').blur();
     showView(returnView);
     // 本週第一次訓練、且這週還沒量體重 → 提醒量體重
-    if (firstThisWeek && wk === weekKey(today()) && !state.bw[wk]) openBw(wk, true);
+    var needBw = firstThisWeek && isThisWeek && !state.bw[wk];
+    if (doCheer) showCheer(function () { if (needBw) openBw(wk, true); });
+    else if (needBw) openBw(wk, true);
   }
+
+  // ---------- 每週 4 次鼓勵動畫 ----------
+  var cheerEl = document.getElementById('cheer');
+  var afterCheer = null;
+  function showCheer(next) {
+    afterCheer = next || null;
+    document.getElementById('cheerMsg').textContent = CHEERS[Math.floor(Math.random() * CHEERS.length)];
+    cheerEl.classList.remove('open');
+    void cheerEl.offsetWidth;            // 重新播放動畫
+    cheerEl.classList.add('open');
+    setTimeout(function () { document.getElementById('cheerGo').focus({ preventScroll: true }); }, 50);
+  }
+  document.getElementById('cheerGo').addEventListener('click', function () {
+    cheerEl.classList.remove('open');
+    var fn = afterCheer; afterCheer = null;
+    if (fn) fn();
+  });
+
+  // ---------- 筆記 ----------
+  var noteModal = document.getElementById('noteModal');
+  var noteDay = null;
+  function openNote(day) {
+    noteDay = day;
+    var d = parseKey(day);
+    document.getElementById('noteTitle').textContent = (day === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）的筆記';
+    var ta = document.getElementById('noteInput');
+    ta.value = state.note[day] || '';
+    updateCount(ta, 'noteCount');
+    document.getElementById('noteDelete').hidden = !state.note[day];
+    noteModal.classList.add('open');
+  }
+  function closeNote() { noteModal.classList.remove('open'); noteDay = null; document.getElementById('noteInput').blur(); }
 
   // ---------- 體重 ----------
   var bwModal = document.getElementById('bwModal');
@@ -881,6 +1082,12 @@
       sum.replaceChildren(el('div', {}, [el('span', { text: '這天只有打勾，沒有詳細紀錄' })]));
       sum.hidden = false;
     } else sum.hidden = true;
+    var noteBox = document.getElementById('dayNote'), nt = state.note[k];
+    if (nt) {
+      noteBox.replaceChildren(el('span', { class: 'lbl', text: g ? '心得' : '筆記' }), document.createTextNode(nt));
+      noteBox.hidden = false;
+    } else noteBox.hidden = true;
+    document.getElementById('noteBtn').textContent = nt ? '編輯筆記' : '寫筆記';
     document.getElementById('pickA').textContent = g === 'A' ? '編輯紀錄' : (g ? '改成 胸肩背組' : '胸肩背組');
     document.getElementById('pickB').textContent = g === 'B' ? '編輯紀錄' : (g ? '改成 上下肢組' : '上下肢組');
     document.getElementById('clearDay').hidden = !g;
@@ -904,6 +1111,8 @@
     pickingDay = null;
     if (pick === 'A' || pick === 'B') {
       openLog(day, pick);
+    } else if (pick === 'note') {
+      openNote(day);
     } else if (pick === 'clear') {
       delete state.log[day];
       delete state.detail[day];
@@ -947,6 +1156,22 @@
   });
   document.getElementById('saveLog').addEventListener('click', function () { if (editing) saveLog(); });
   document.getElementById('cancelLog').addEventListener('click', function () { editing = null; showView(returnView); });
+
+  // ---------- 操作：筆記 ----------
+  document.getElementById('logNote').addEventListener('input', function () { updateCount(this, 'logNoteCount'); });
+  document.getElementById('noteInput').addEventListener('input', function () { updateCount(this, 'noteCount'); });
+  document.getElementById('noteCancel').addEventListener('click', closeNote);
+  noteModal.addEventListener('click', function (ev) { if (ev.target === noteModal) closeNote(); });
+  document.getElementById('noteSave').addEventListener('click', function () {
+    if (!noteDay) return;
+    setNote(noteDay, document.getElementById('noteInput').value);
+    save(); closeNote(); renderCurrent();
+  });
+  document.getElementById('noteDelete').addEventListener('click', function () {
+    if (!noteDay) return;
+    delete state.note[noteDay];
+    save(); closeNote(); renderCurrent();
+  });
 
   // ---------- 操作：體重 ----------
   document.getElementById('bwChip').addEventListener('click', function () { openBw(weekKey(today()), false); });
@@ -997,8 +1222,9 @@
   document.getElementById('cancelReset').addEventListener('click', function () { resetModal.classList.remove('open'); });
   resetModal.addEventListener('click', function (ev) { if (ev.target === resetModal) resetModal.classList.remove('open'); });
   document.getElementById('confirmReset').addEventListener('click', function () {
-    var keep = { group: state.group, log: state.log, detail: state.detail, bw: state.bw };
-    state = defaults(); state.group = keep.group; state.log = keep.log; state.detail = keep.detail; state.bw = keep.bw;
+    var keep = state;
+    state = defaults();
+    ['group', 'log', 'detail', 'bw', 'note', 'cheer'].forEach(function (f) { state[f] = keep[f]; });
     save(); renderSettings();
     resetModal.classList.remove('open');
   });
