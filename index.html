@@ -138,6 +138,34 @@
   .seg button[aria-pressed="true"] { background: var(--accent); color: var(--onAccent); }
 
   footer { margin-top: 26px; text-align: center; }
+
+  /* ---------- 資料備份 ---------- */
+  .backup { background: var(--card); border-radius: var(--radius); padding: 18px 16px 16px; margin-top: 22px; }
+  .backup h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
+  .backup .desc { font-size: 15px; color: var(--muted); line-height: 1.55; margin: 0 0 14px; }
+  .backup .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .backup button { min-height: 56px; border-radius: 14px; background: var(--card2); font-size: 17px; font-weight: 700; padding: 6px 8px; line-height: 1.3; }
+  .backup button.main { background: var(--accent); color: var(--onAccent); }
+  .backup button:active { filter: brightness(.92); }
+  .snap-row { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .snap-row button { width: 100%; }
+  .snap-row .field-hint { margin: 8px 2px 0; }
+  .snap-row button:disabled { opacity: .45; }
+  .ver { margin-top: 6px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (max-width: 359px) { .backup .grid { grid-template-columns: 1fr; } }
+  .field-hint { text-align: left; font-size: 14px; color: var(--muted); margin: -2px 2px 8px; line-height: 1.5; }
+  .field-label { display: block; text-align: left; font-size: 16px; font-weight: 700; margin: 0 2px 6px; }
+  .imp-sum { text-align: left; background: var(--card2); border-radius: 14px; padding: 12px 14px; margin: -4px 0 14px; font-size: 16px; line-height: 1.7; }
+  .imp-sum b { font-variant-numeric: tabular-nums; }
+  .sheet .choice { text-align: left; padding: 10px 16px; height: auto; min-height: 64px; }
+  .sheet .choice small { display: block; font-size: 14px; font-weight: 500; opacity: .85; margin-top: 2px; }
+
+  /* ---------- 提示訊息（Toast） ---------- */
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); z-index: 60; transform: translate(-50%, 20px);
+           max-width: calc(100% - 32px); width: max-content; padding: 14px 20px; border-radius: 16px; font-size: 17px; font-weight: 700;
+           background: #f3f5f9; color: #10131a; box-shadow: 0 8px 28px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.err { background: #c0584e; color: #fff; }
   .reset { color: var(--muted); font-size: 16px; padding: 12px 18px; border-radius: 12px; }
   .reset:active { background: var(--card); }
   .warn { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
@@ -378,8 +406,25 @@
 
   <main class="list" id="list"></main>
 
+  <section class="backup" aria-labelledby="backupTitle">
+    <h2 id="backupTitle">資料備份</h2>
+    <p class="desc">換手機、從 Safari 改用主畫面 App，或網址改變時，先在舊的地方「匯出備份」，再到新的地方「匯入」，紀錄就能搬過去。</p>
+    <div class="grid">
+      <button type="button" class="main" id="exportBtn">匯出備份</button>
+      <button type="button" class="main" id="importFileBtn">從檔案匯入</button>
+      <button type="button" id="copyBtn">複製備份文字</button>
+      <button type="button" id="pasteBtn">貼上備份文字匯入</button>
+    </div>
+    <input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
+    <div class="snap-row">
+      <button type="button" id="restoreBtn">還原到昨天的自動備份</button>
+      <div class="field-hint" id="snapHint"></div>
+    </div>
+  </section>
+
   <footer>
     <button type="button" class="reset" id="resetBtn">重設為預設值</button>
+    <div class="ver" id="appVer"></div>
   </footer>
 </div>
 
@@ -428,7 +473,8 @@
   <main class="list" id="logList"></main>
   <section class="log-note">
     <label for="logNote">今日心得<small>選填</small></label>
-    <textarea class="note-area" id="logNote" maxlength="1000" placeholder="例如：今天狀態不錯、右肩有點緊、下次臥推可以加重"></textarea>
+    <div class="field-hint">可以記下今天的狀態、哪裡痠痛，或下次想調整的地方。</div>
+    <textarea class="note-area" id="logNote" maxlength="1000"></textarea>
     <div class="note-count" id="logNoteCount">0 / 1000</div>
   </section>
   <button type="button" class="check-today" id="saveLog"></button>
@@ -454,7 +500,8 @@
 <div class="modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
   <div class="sheet">
     <p id="noteTitle"></p>
-    <textarea class="note-area" id="noteInput" maxlength="1000" placeholder="想記下什麼都可以，例如：今天休息，腿還有點痠"></textarea>
+    <label class="field-label" for="noteInput">筆記內容</label>
+    <textarea class="note-area" id="noteInput" maxlength="1000"></textarea>
     <div class="note-count" id="noteCount">0 / 1000</div>
     <div class="btns two">
       <button type="button" id="noteCancel">取消</button>
@@ -484,13 +531,80 @@
   <div class="sheet">
     <p id="bwTitle"></p>
     <p class="sub-p" id="bwSub"></p>
-    <input class="bw-input" id="bwInput" type="text" inputmode="decimal" autocomplete="off" maxlength="6" aria-label="體重（公斤）">
+    <label class="field-label" for="bwInput">體重（公斤）</label>
+    <input class="bw-input" id="bwInput" type="text" inputmode="decimal" autocomplete="off" maxlength="6">
+    <div class="field-hint" id="bwHint"></div>
     <div class="bw-err" id="bwErr" aria-live="polite"></div>
     <div class="btns two">
       <button type="button" id="bwLater">稍後再說</button>
       <button type="button" class="danger" id="bwSave">儲存</button>
     </div>
     <div class="btns" style="margin-top:10px"><button type="button" class="plain" id="bwClear" hidden>刪除這週的體重</button></div>
+  </div>
+</div>
+
+<!-- 刪除當天訓練紀錄確認 -->
+<div class="modal" id="clearModal" role="dialog" aria-modal="true" aria-labelledby="clearTitle">
+  <div class="sheet">
+    <p id="clearTitle">確定要刪除訓練紀錄嗎？</p>
+    <p class="sub-p"><b id="clearWhich" style="color:var(--text)"></b><br>打勾和每組紀錄都會刪除，無法復原。<span id="clearKeep"><br>這天的筆記會保留。</span></p>
+    <div class="btns two">
+      <button type="button" id="clearCancel">取消</button>
+      <button type="button" class="danger" id="clearConfirm">確定刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 貼上備份文字 -->
+<div class="modal" id="pasteModal" role="dialog" aria-modal="true" aria-labelledby="pasteTitle">
+  <div class="sheet">
+    <p id="pasteTitle">貼上備份文字</p>
+    <label class="field-label" for="pasteInput">備份文字</label>
+    <div class="field-hint">把之前用「複製備份文字」複製的內容，整段貼到下面。</div>
+    <textarea class="note-area" id="pasteInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+    <div class="bw-err" id="pasteErr" aria-live="polite"></div>
+    <div class="btns two">
+      <button type="button" id="pasteCancel">取消</button>
+      <button type="button" class="danger" id="pasteNext">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- 匯入確認 -->
+<div class="modal" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+  <div class="sheet">
+    <div id="importStep1">
+      <p id="importTitle">要怎麼匯入這份備份？</p>
+      <div class="imp-sum" id="importSum"></div>
+      <div class="btns">
+        <button type="button" class="gB choice" id="importMerge">合併（建議）<small>加入這裡沒有的日子；同一天兩邊都有時，保留這裡現有的</small></button>
+        <button type="button" class="choice" id="importReplace">全部取代<small>整個換成備份的內容，包含計畫的重量、次數、組數</small></button>
+        <button type="button" class="plain" id="importCancel">取消</button>
+      </div>
+    </div>
+    <div id="importStep2" hidden>
+      <p>確定要全部取代嗎？</p>
+      <p class="sub-p">目前這裡的所有紀錄、體重、筆記和計畫設定，都會被備份的內容覆蓋，無法復原。</p>
+      <div class="btns two">
+        <button type="button" id="replaceBack">返回</button>
+        <button type="button" class="danger" id="replaceConfirm">確定取代</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- 還原自動備份確認 -->
+<div class="modal" id="restoreModal" role="dialog" aria-modal="true" aria-labelledby="restoreTitle">
+  <div class="sheet">
+    <p id="restoreTitle">確定要還原自動備份嗎？</p>
+    <div class="imp-sum" id="restoreSum"></div>
+    <p class="sub-p">目前的資料會換成這份自動備份的內容。目前的資料會先另外保留一份。</p>
+    <div class="btns two">
+      <button type="button" id="restoreCancel">取消</button>
+      <button type="button" class="danger" id="restoreConfirm">確定還原</button>
+    </div>
   </div>
 </div>
 
@@ -563,15 +677,14 @@
   function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function weekKey(d) { return keyOf(weekDays(d)[0]); }   // 該週週一的日期當作週的代號
 
-  // ---------- 儲存（全部包 try/catch） ----------
+  // ---------- 儲存：畫面一律透過 store 讀寫資料（以後要改雲端只換這裡） ----------
   var storageOK = true;
   function readKey(k) {
     try { return JSON.parse(localStorage.getItem(k) || 'null'); }
     catch (e) { if (e instanceof SyntaxError) return null; storageOK = false; return null; }
   }
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch (e) { storageOK = false; }
+    store.save(state);
     document.getElementById('storageWarn').hidden = storageOK;
   }
 
@@ -595,6 +708,10 @@
         if (REPS.indexOf(v.r) !== -1) st.ex[e.id].r = v.r;
         if (SETS.indexOf(v.s) !== -1) st.ex[e.id].s = v.s;
       });
+      // 目前清單上沒有的動作：原封不動保留
+      Object.keys(raw.ex).forEach(function (id) {
+        if (!byId(id) && /^[a-z0-9_]{1,40}$/.test(id) && raw.ex[id] && typeof raw.ex[id] === 'object') st.ex[id] = raw.ex[id];
+      });
     }
     if (raw.log && typeof raw.log === 'object') {
       var cutoff = today(); cutoff.setDate(cutoff.getDate() - KEEP_DAYS);
@@ -614,6 +731,13 @@
           clean[e.id] = d[e.id].filter(function (x) {
             return Array.isArray(x) && x.length === 2 && validW(e, x[0]) && Number.isInteger(x[1]) && x[1] >= 0 && x[1] <= MAX_REPS;
           }).slice(0, MAX_SETS).map(function (x) { return [x[0], x[1]]; });
+        });
+        // 目前清單上沒有的動作紀錄：格式正確就原封不動保留
+        Object.keys(d).forEach(function (id) {
+          if (byId(id) || !/^[a-z0-9_]{1,40}$/.test(id) || !Array.isArray(d[id])) return;
+          clean[id] = d[id].filter(function (x) {
+            return Array.isArray(x) && x.length === 2 && Number.isInteger(x[0]) && x[0] >= 0 && x[0] <= MAX_TENTHS && Number.isInteger(x[1]) && x[1] >= 0 && x[1] <= MAX_REPS;
+          }).slice(0, MAX_SETS);
         });
         st.detail[k] = clean;
       });
@@ -655,9 +779,165 @@
     return raw;
   }
 
-  var raw = readKey(STORAGE_KEY);
-  if (!raw) raw = migrateV1(readKey(OLD_KEY));
-  var state = sanitize(raw);
+  var APP_ID = 'workout-menu';
+  var BACKUP_VERSION = 2;          // 備份檔格式版本；以後改版時用來轉換舊備份
+  var MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+  var DATA_FIELDS = ['ex', 'log', 'detail', 'bw', 'note', 'cheer'];
+
+  // 資料格式版本：以後資料格式改版時 +1，並在 MIGRATIONS 加上「舊版 → 新版」的轉換。
+  // 重要：存資料的名稱 STORAGE_KEY（workout-v2）永遠不要改，否則舊資料會讀不到。
+  var DATA_VERSION = 2;
+  var MIGRATIONS = {
+    // 範例：3: function (raw) { ...把第 2 版資料轉成第 3 版...; return raw; }
+  };
+  var KNOWN_FIELDS = ['group', 'ex', 'log', 'detail', 'bw', 'note', 'cheer', '_v'];
+  var SNAP_KEY = STORAGE_KEY + '-snapshot';        // 每天一份的自動快照
+  var RESCUE_KEY = STORAGE_KEY + '-rescue';        // 讀不懂的原始資料
+  var BEFORE_KEY = STORAGE_KEY + '-before-';       // 升級或還原前的備份（後面接版本或用途）
+
+  function getItem(k) { try { return localStorage.getItem(k); } catch (e) { storageOK = false; return null; } }
+  function setItem(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { storageOK = false; return false; } }
+
+  var store = {
+    extra: {},              // 看不懂的欄位：存檔時原封不動帶回去
+    loadProblem: false,     // 讀取時發現資料損壞
+    snapshot: null,         // { takenOn, data }
+
+    // 讀取：只讀不寫（除非需要格式升級），舊資料一律保留
+    load: function () {
+      var text = getItem(STORAGE_KEY);
+      var raw = null;
+      if (text !== null) {
+        try { raw = JSON.parse(text); } catch (e) { raw = undefined; }
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+          // 資料壞掉：原始內容另外保存，不覆蓋
+          if (getItem(RESCUE_KEY) !== text) setItem(RESCUE_KEY, text);
+          store.loadProblem = true;
+          raw = null;
+        }
+      }
+      if (!raw && !store.loadProblem) raw = migrateV1(readKey(OLD_KEY));   // 第一版資料（原始資料不刪）
+      if (raw) {
+        // 依序執行格式升級；升級前先保留原始資料
+        var v = Number.isInteger(raw._v) ? raw._v : 2;
+        if (v < DATA_VERSION && text !== null) {
+          setItem(BEFORE_KEY + 'v' + DATA_VERSION, text);
+          for (var n = v + 1; n <= DATA_VERSION; n++) if (MIGRATIONS[n]) raw = MIGRATIONS[n](raw);
+          raw._v = DATA_VERSION;
+          store.extraFrom(raw);
+          var st0 = sanitize(raw);
+          store.save(st0);
+          return st0;
+        }
+        store.extraFrom(raw);
+      }
+      // 每天第一次打開時，把「到昨天為止」的資料存成快照
+      store.snapshot = readKey(SNAP_KEY);
+      if (text !== null && !store.loadProblem) {
+        var snap = store.snapshot, tk = keyOf(today());
+        if (!snap || typeof snap !== 'object' || snap.takenOn !== tk) {
+          if (!snap || snap.takenOn < tk) {
+            store.snapshot = { takenOn: tk, data: text };
+            setItem(SNAP_KEY, JSON.stringify(store.snapshot));
+          }
+        }
+      }
+      return sanitize(raw);
+    },
+    extraFrom: function (raw) {
+      store.extra = {};
+      Object.keys(raw || {}).forEach(function (f) { if (KNOWN_FIELDS.indexOf(f) === -1) store.extra[f] = raw[f]; });
+    },
+    save: function (st) {
+      var out = {};
+      Object.keys(store.extra).forEach(function (f) { out[f] = store.extra[f]; });
+      Object.keys(st).forEach(function (f) { out[f] = st[f]; });
+      out._v = DATA_VERSION;
+      setItem(STORAGE_KEY, JSON.stringify(out));
+    },
+    // 自動快照：回傳 { takenOn, data(整理過的狀態) } 或 null
+    snapshotInfo: function () {
+      var s0 = store.snapshot;
+      if (!s0 || typeof s0 !== 'object' || typeof s0.data !== 'string') return null;
+      var raw; try { raw = JSON.parse(s0.data); } catch (e) { return null; }
+      if (!raw || typeof raw !== 'object') return null;
+      return { takenOn: s0.takenOn, raw: raw, data: sanitize(raw) };
+    },
+    restoreSnapshot: function (cur) {
+      var info = store.snapshotInfo();
+      if (!info) return null;
+      setItem(BEFORE_KEY + 'restore', getItem(STORAGE_KEY) || '');   // 還原前先保留目前資料
+      store.extraFrom(info.raw);
+      var st = info.data; st.group = cur.group;
+      store.save(st);
+      return st;
+    },
+    // 匯出：產生備份檔的文字內容
+    exportText: function (st) {
+      var data = {};
+      Object.keys(store.extra).forEach(function (f) { data[f] = store.extra[f]; });
+      DATA_FIELDS.forEach(function (f) { data[f] = st[f]; });
+      var now = new Date(), off = -now.getTimezoneOffset();
+      var stamp = keyOf(now) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) +
+                  (off >= 0 ? '+' : '-') + pad(Math.floor(Math.abs(off) / 60)) + ':' + pad(Math.abs(off) % 60);
+      return JSON.stringify({ app: APP_ID, version: BACKUP_VERSION, exportedAt: stamp, data: data }, null, 1);
+    },
+    fileName: function () { return 'workout-menu-backup-' + keyOf(new Date()) + '.json'; },   // 檔名用英文，避免部分瀏覽器把中文檔名變成亂碼
+    // 檢查備份：成功回傳 { data, exportedAt }，失敗回傳 { error: 白話說明 }
+    parseBackup: function (text) {
+      if (typeof text !== 'string' || !text.trim()) return { error: '內容是空的，請確認有選到正確的備份檔或貼上完整的文字。' };
+      if (text.length > MAX_IMPORT_BYTES) return { error: '檔案太大，這不像是健身菜單的備份檔。' };
+      var obj;
+      try { obj = JSON.parse(text.trim()); }
+      catch (e) { return { error: '這不是正確的備份格式，內容可能損壞或沒有複製完整。' }; }
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { error: '這不是健身菜單的備份檔。' };
+      var raw, exportedAt = '';
+      if (obj.app === APP_ID) {
+        if (typeof obj.version !== 'number' || obj.version > BACKUP_VERSION) return { error: '這份備份來自較新版本的健身菜單，請先重新整理網頁更新到最新版再匯入。' };
+        if (!obj.data || typeof obj.data !== 'object') return { error: '備份檔裡沒有資料，可能已經損壞。' };
+        raw = obj.data;
+        exportedAt = typeof obj.exportedAt === 'string' ? obj.exportedAt.slice(0, 10) : '';
+      } else if (obj.app) {
+        return { error: '這是其他程式的備份檔，不是健身菜單的。' };
+      } else if (obj.log || obj.ex || obj.bw || obj.note) {
+        // 直接貼上的舊版原始資料也接受
+        var looksV1 = obj.ex && Object.keys(obj.ex).some(function (k) { return obj.ex[k] && obj.ex[k].u !== undefined; });
+        raw = looksV1 ? migrateV1(obj) : obj;
+      } else {
+        return { error: '這不是健身菜單的備份檔。' };
+      }
+      var data = sanitize(raw);
+      var n = store.count(data);
+      if (!n.days && !n.bw && !n.notes && JSON.stringify(data.ex) === JSON.stringify(defaults().ex)) {
+        return { error: '這份備份裡沒有任何紀錄（超過約 2 年的舊紀錄不會匯入）。' };
+      }
+      return { data: data, exportedAt: exportedAt };
+    },
+    count: function (st) {
+      return { days: Object.keys(st.log).length, bw: Object.keys(st.bw).length, notes: Object.keys(st.note).length };
+    },
+    // 合併：只加入目前沒有的日子，同一天以目前的資料為準；計畫設定維持目前的
+    merge: function (cur, inc) {
+      var out = JSON.parse(JSON.stringify(cur)), added = { days: 0, bw: 0, notes: 0 };
+      Object.keys(inc.log).forEach(function (k) {
+        if (out.log[k]) return;
+        out.log[k] = inc.log[k];
+        if (inc.detail[k]) out.detail[k] = inc.detail[k];
+        added.days++;
+      });
+      Object.keys(inc.bw).forEach(function (k) { if (!out.bw[k]) { out.bw[k] = inc.bw[k]; added.bw++; } });
+      Object.keys(inc.note).forEach(function (k) { if (!out.note[k]) { out.note[k] = inc.note[k]; added.notes++; } });
+      Object.keys(inc.cheer).forEach(function (k) { out.cheer[k] = true; });
+      return { state: sanitize(out), added: added };
+    },
+    replace: function (cur, inc) {
+      var out = JSON.parse(JSON.stringify(inc));
+      out.group = cur.group;
+      return sanitize(out);
+    }
+  };
+
+  var state = store.load();
 
   // 今天若已打勾，主畫面直接顯示那一組
   var todayKey = keyOf(today());
@@ -798,6 +1078,7 @@
     });
     var list = document.getElementById('list');
     list.replaceChildren.apply(list, EXERCISES.filter(function (e) { return e.g === g; }).map(card));
+    renderSnap();
   }
 
   // ---------- 歷史紀錄（月曆） ----------
@@ -1006,7 +1287,7 @@
     var cur = state.bw[wk];
     var prevKeys = Object.keys(state.bw).filter(function (k) { return k < wk; }).sort();
     input.value = cur ? fmtKg(cur) : '';
-    input.placeholder = prevKeys.length ? '上次 ' + fmtKg(state.bw[prevKeys[prevKeys.length - 1]]) : '例如 70.5';
+    document.getElementById('bwHint').textContent = prevKeys.length ? '上次記錄：' + fmtKg(state.bw[prevKeys[prevKeys.length - 1]]) + ' kg' : '輸入數字即可，可以有一位小數。';
     document.getElementById('bwErr').textContent = '';
     document.getElementById('bwClear').hidden = !cur;
     bwModal.classList.add('open');
@@ -1096,9 +1377,7 @@
     } else if (pick === 'note') {
       openNote(day);
     } else if (pick === 'clear') {
-      delete state.log[day];
-      delete state.detail[day];
-      save(); renderCurrent();
+      openClear(day);
     }
   });
 
@@ -1138,6 +1417,28 @@
   });
   document.getElementById('saveLog').addEventListener('click', function () { if (editing) saveLog(); });
   document.getElementById('cancelLog').addEventListener('click', function () { editing = null; showView(returnView); });
+
+  // ---------- 刪除當天訓練紀錄（需確認） ----------
+  var clearModal = document.getElementById('clearModal');
+  var clearDay = null;
+  function openClear(day) {
+    clearDay = day;
+    var d = parseKey(day), g = state.log[day];
+    document.getElementById('clearWhich').textContent =
+      (day === todayKey ? '今天 ' : '') + md(d) + '（' + DOW[d.getDay()] + '）' + (g ? '・' + GROUPS[g].title : '');
+    document.getElementById('clearKeep').hidden = !state.note[day];
+    clearModal.classList.add('open');
+    setTimeout(function () { document.getElementById('clearCancel').focus({ preventScroll: true }); }, 30);
+  }
+  function closeClear() { clearModal.classList.remove('open'); clearDay = null; }
+  document.getElementById('clearCancel').addEventListener('click', closeClear);
+  clearModal.addEventListener('click', function (ev) { if (ev.target === clearModal) closeClear(); });
+  document.getElementById('clearConfirm').addEventListener('click', function () {
+    if (!clearDay) return;
+    delete state.log[clearDay];
+    delete state.detail[clearDay];
+    save(); closeClear(); renderCurrent();
+  });
 
   // ---------- 操作：筆記 ----------
   document.getElementById('logNote').addEventListener('input', function () { updateCount(this, 'logNoteCount'); });
@@ -1211,6 +1512,175 @@
     resetModal.classList.remove('open');
   });
 
+  // ---------- 提示訊息（Toast） ----------
+  var toastTimer = null;
+  function toast(msg, isErr) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('err', !!isErr);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, isErr ? 4500 : 3000);
+  }
+
+  // ---------- 資料備份：匯出 ----------
+  function downloadText(text, name) {
+    var blob = new Blob([text], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = el('a', { href: url, download: name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  }
+  document.getElementById('exportBtn').addEventListener('click', function () {
+    var text = store.exportText(state), name = store.fileName();
+    var file = null;
+    try { file = new File([text], name, { type: 'application/json' }); } catch (e) { file = null; }
+    // iPhone：用分享選單（可選「儲存到檔案」）；不支援時改成直接下載
+    if (file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: name }).then(function () {
+        toast('備份已匯出');
+      }).catch(function (e) {
+        if (e && e.name === 'AbortError') return;          // 使用者自己取消
+        downloadText(text, name); toast('已改用下載方式匯出備份');
+      });
+    } else {
+      downloadText(text, name);
+      toast('已下載備份檔：' + name);
+    }
+  });
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {
+      var ta = el('textarea', { readonly: '', 'aria-hidden': 'true' });
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove(); ok ? resolve() : reject(new Error('copy failed'));
+    });
+  }
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    copyText(store.exportText(state)).then(function () {
+      toast('已複製備份文字，可以貼到備忘錄或 LINE 保存');
+    }).catch(function () {
+      toast('無法複製，請改用「匯出備份」', true);
+    });
+  });
+
+  // ---------- 資料備份：匯入 ----------
+  var importModal = document.getElementById('importModal');
+  var pending = null;            // 檢查通過、等待確認的備份資料
+  function showImportStep(n) {
+    document.getElementById('importStep1').hidden = n !== 1;
+    document.getElementById('importStep2').hidden = n !== 2;
+  }
+  function startImport(text) {
+    var r = store.parseBackup(text);
+    if (r.error) return r.error;
+    pending = r.data;
+    var n = store.count(r.data);
+    var sum = document.getElementById('importSum');
+    sum.replaceChildren(
+      el('div', {}, ['備份日期：', el('b', { text: r.exportedAt || '不明' })]),
+      el('div', {}, ['訓練紀錄：', el('b', { text: n.days + ' 天' })]),
+      el('div', {}, ['每週體重：', el('b', { text: n.bw + ' 週' })]),
+      el('div', {}, ['筆記：', el('b', { text: n.notes + ' 則' })])
+    );
+    showImportStep(1);
+    importModal.classList.add('open');
+    return null;
+  }
+  function closeImport() { importModal.classList.remove('open'); pending = null; showImportStep(1); }
+  function afterImport(msg) {
+    var tk = keyOf(today());
+    if (state.log[tk]) state.group = state.log[tk];
+    save(); closeImport(); renderSettings(); toast(msg);
+  }
+
+  var fileInput = document.getElementById('importFile');
+  document.getElementById('importFileBtn').addEventListener('click', function () { fileInput.value = ''; fileInput.click(); });
+  fileInput.addEventListener('change', function () {
+    var f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+    if (f.size > MAX_IMPORT_BYTES) { toast('檔案太大，這不像是健身菜單的備份檔', true); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      fileInput.value = '';          // 清掉選擇，同一個檔案可以再選一次
+      var err = startImport(String(reader.result || ''));
+      if (err) toast(err, true);
+    };
+    reader.onerror = function () { toast('讀取檔案失敗，請再試一次', true); };
+    reader.readAsText(f);
+  });
+
+  var pasteModal = document.getElementById('pasteModal');
+  document.getElementById('pasteBtn').addEventListener('click', function () {
+    document.getElementById('pasteInput').value = '';
+    document.getElementById('pasteErr').textContent = '';
+    pasteModal.classList.add('open');
+  });
+  function closePaste() { pasteModal.classList.remove('open'); document.getElementById('pasteInput').blur(); }
+  document.getElementById('pasteCancel').addEventListener('click', closePaste);
+  pasteModal.addEventListener('click', function (ev) { if (ev.target === pasteModal) closePaste(); });
+  document.getElementById('pasteNext').addEventListener('click', function () {
+    var err = startImport(document.getElementById('pasteInput').value);
+    if (err) { document.getElementById('pasteErr').textContent = err; return; }
+    closePaste();
+  });
+
+  document.getElementById('importCancel').addEventListener('click', closeImport);
+  importModal.addEventListener('click', function (ev) { if (ev.target === importModal) closeImport(); });
+  document.getElementById('importMerge').addEventListener('click', function () {
+    if (!pending) return;
+    var r = store.merge(state, pending);
+    state = r.state;
+    var a = r.added, parts = [];
+    if (a.days) parts.push(a.days + ' 天紀錄');
+    if (a.bw) parts.push(a.bw + ' 週體重');
+    if (a.notes) parts.push(a.notes + ' 則筆記');
+    afterImport(parts.length ? '已匯入 ' + parts.join('、') : '沒有新的資料，這裡已經都有了');
+  });
+  document.getElementById('importReplace').addEventListener('click', function () { if (pending) showImportStep(2); });
+  document.getElementById('replaceBack').addEventListener('click', function () { showImportStep(1); });
+  document.getElementById('replaceConfirm').addEventListener('click', function () {
+    if (!pending) return;
+    state = store.replace(state, pending);
+    var n = store.count(state);
+    afterImport('已全部取代：' + n.days + ' 天紀錄、' + n.bw + ' 週體重、' + n.notes + ' 則筆記');
+  });
+
+  // ---------- 還原到昨天的自動備份 ----------
+  var APP_VERSION = '2026.10.05';
+  document.getElementById('appVer').textContent = '版本 ' + APP_VERSION;
+  function renderSnap() {
+    var info = store.snapshotInfo(), btn = document.getElementById('restoreBtn'), hint = document.getElementById('snapHint');
+    if (!info) { btn.disabled = true; hint.textContent = '每天第一次打開時，會自動保留一份到前一天為止的資料。目前還沒有自動備份。'; return; }
+    var n = store.count(info.data);
+    btn.disabled = false;
+    hint.textContent = '自動備份（' + info.takenOn + ' 打開前的資料）：' + n.days + ' 天紀錄、' + n.bw + ' 週體重、' + n.notes + ' 則筆記。萬一更新後資料有問題，可以用它還原。';
+  }
+  var restoreModal = document.getElementById('restoreModal');
+  document.getElementById('restoreBtn').addEventListener('click', function () {
+    var info = store.snapshotInfo(); if (!info) return;
+    var n = store.count(info.data);
+    document.getElementById('restoreSum').replaceChildren(
+      el('div', {}, ['備份時間：', el('b', { text: info.takenOn + ' 打開前' })]),
+      el('div', {}, ['內容：', el('b', { text: n.days + ' 天紀錄、' + n.bw + ' 週體重、' + n.notes + ' 則筆記' })])
+    );
+    restoreModal.classList.add('open');
+  });
+  function closeRestore() { restoreModal.classList.remove('open'); }
+  document.getElementById('restoreCancel').addEventListener('click', closeRestore);
+  restoreModal.addEventListener('click', function (ev) { if (ev.target === restoreModal) closeRestore(); });
+  document.getElementById('restoreConfirm').addEventListener('click', function () {
+    var st = store.restoreSnapshot(state);
+    closeRestore();
+    if (!st) { toast('自動備份讀取失敗，資料沒有變動', true); return; }
+    state = st;
+    var tk = keyOf(today()); if (state.log[tk]) state.group = state.log[tk];
+    renderSettings(); toast('已還原到自動備份');
+  });
+
   // 跨過午夜或從背景回來時更新日期
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState !== 'visible') return;
@@ -1218,7 +1688,8 @@
     if (k !== todayKey) { todayKey = k; renderCurrent(); }
   });
 
-  save();          // 寫入清理過／轉換過的資料
+  // 打開時不自動寫回：只有使用者操作時才存檔，避免某一版的程式錯誤直接改掉舊資料
+  if (store.loadProblem) setTimeout(function () { toast('讀取資料時發現問題，原始資料已另外保留', true); }, 300);
   renderMain();
 })();
 </script>
