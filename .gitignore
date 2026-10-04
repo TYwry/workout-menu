@@ -21,3 +21,7 @@ node_modules/
 # 暫存
 .commit-message.txt
 *.bundle
+# Firebase 部署時自動產生
+.firebase/
+firebase-debug.log
+firebase-debug.*.log

@@ -12,7 +12,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "$p='README.md'; $t=[IO.F
 :skiplink
 
 git add -A
-git diff --cached --name-only | findstr /i /r "config\.json history\.json \.env \.log$ \.key$ \.pem$" >nul
+git diff --cached --name-only | findstr /i /r "config\.json history\.json \.env \.log$ \.key$ \.pem$ ^\.firebase/" >nul
 if not errorlevel 1 (
   echo [中止] 發現不應上傳的檔案，已取消暫存。
   git reset -q
@@ -26,6 +26,7 @@ if exist ".commit-message.txt" (
   call git commit -m "%%MSG%%"
 )
 git push
-if not "%GHUSER%"=="" gh repo edit "%GHUSER%/%REPO%" --homepage "https://%GHUSER%.github.io/%REPO%/" >nul 2>nul
-echo 已上傳，GitHub Pages 約 1 分鐘後更新。
+if not "%GHUSER%"=="" gh repo edit "%GHUSER%/%REPO%" --homepage "https://iphone-sport.web.app/" >nul 2>nul
+echo 已存到 GitHub。
+echo 提醒：這個步驟只會更新 GitHub 上的檔案；App 本身要更新，請雙擊 deploy.bat。
 pause
