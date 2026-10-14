@@ -1,0 +1,20 @@
+rules_version = '2';
+// 健身菜單「同步到電腦」的雲端存取規則
+// 只有知道 16 位同步碼的人能讀寫自己那一份；不能列出別人的資料，也不能刪除。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sync/{code} {
+      allow get: if code.matches('^[A-Z2-9]{16}$');
+      allow create, update: if code.matches('^[A-Z2-9]{16}$')
+        && request.resource.data.keys().hasOnly(['app', 'v', 'data', 'updatedAt'])
+        && request.resource.data.app == 'workout-menu'
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 1000000;
+      allow list, delete: if false;
+    }
+    // 其他位置一律不開放
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

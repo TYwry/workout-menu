@@ -6,7 +6,7 @@ where firebase >nul 2>nul || (echo 找不到 Firebase 工具，請先雙擊 setu
 if not exist ".firebaserc" (echo 找不到 .firebaserc，請先填入 Firebase 專案 ID & pause & exit /b 1)
 findstr /c:"your-firebase-project-id" ".firebaserc" >nul && (echo 請先用記事本打開 .firebaserc，把 your-firebase-project-id 換成你的 Firebase 專案 ID & pause & exit /b 1)
 node scripts\bump-version.js || (pause & exit /b 1)
-call firebase deploy --only hosting
+call firebase deploy --only hosting,firestore:rules
 if errorlevel 1 (echo 部署失敗，請看上面的錯誤訊息 & pause & exit /b 1)
 echo.
 echo 部署完成！手機下次開啟 App 就會換成新版，資料不受影響。
